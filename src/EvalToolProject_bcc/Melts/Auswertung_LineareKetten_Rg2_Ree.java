@@ -111,7 +111,7 @@ public class Auswertung_LineareKetten_Rg2_Ree {
 		Ree2_stat= new Statistik();
 		HG_ree = new Histogramm(0,25,100);
 		histo_ree= new BFMFileSaver();
-		histo_ree.DateiAnlegen(dirDst+"/Histo_Ree_"+fname+".dat", false);
+		histo_ree.DateiAnlegen(dirDst+"/"+fname+"_Histo_Ree.dat", false);
 		
 		
 		
@@ -137,7 +137,7 @@ public class Auswertung_LineareKetten_Rg2_Ree {
 		
 		BFMFileSaver rg = new BFMFileSaver();
 		//rg.DateiAnlegen("/home/users/dockhorn/Simulationen/HEPPEGConnectedGel/Auswertung_Gamma_"+gamma+"/StarPEG_CumBonds_HepPEGConnectedGel_"+FileName+".dat", false);
-		rg.DateiAnlegen(dirDst+"/Rg2_"+FileName+".dat", false);
+		rg.DateiAnlegen(dirDst+"/"+FileName+"_Rg2.dat", false);
 		rg.setzeZeile("# NrOfMonomersPerChain="+ NrOfMonoPerChain);
 		rg.setzeZeile("# NrOfChains="+ NrOfChains);
 		rg.setzeZeile("# NrDensity c="+((8.0*(MONOMERZAHL-1))/(Gitter_x*Gitter_y*Gitter_z)));
@@ -161,7 +161,7 @@ public class Auswertung_LineareKetten_Rg2_Ree {
 		
 		
 		BFMFileSaver rgtime = new BFMFileSaver();
-		rgtime.DateiAnlegen(dirDst+"/Rg2_Time_"+FileName+".dat", false);
+		rgtime.DateiAnlegen(dirDst+"/"+FileName+"_Rg2_Time.dat", false);
 		rgtime.setzeZeile("# Time <(Rg2)>  <(Rg2)^2> d<Rg2> <(Rg2_x)>  <(Rg2_x)^2> d<Rg2_x> <(Rg2_y)>  <(Rg2_y)^2> d<Rg2_y> <(Rg2_z)>  <(Rg2_z)^2> d<Rg2_z> SampleSize");
 		
 		for(int i=0; i < maxframe; i++)
@@ -175,11 +175,11 @@ public class Auswertung_LineareKetten_Rg2_Ree {
 	protected void createXmGraceFile()
 	{
 		BFMFileSaver xmgrace = new BFMFileSaver();
-		xmgrace.DateiAnlegen(dstDir+"/Rg2_Time_"+FileName+".batch", false);
+		xmgrace.DateiAnlegen(dstDir+"/"+FileName+"_Rg2_Time.batch", false);
 		xmgrace.setzeZeile("arrange (1,1,.1,.6,.6,ON,ON,ON)");
 	    xmgrace.setzeZeile("FOCUS G0");
 	    xmgrace.setzeZeile(" AUTOSCALE ONREAD None");
-	    xmgrace.setzeZeile("READ BLOCK \""+dstDir+"Rg2_Time_"+FileName+".dat\"");
+	    xmgrace.setzeZeile("READ BLOCK \""+dstDir+""+FileName+"_Rg2_Time.dat\"");
 	    xmgrace.setzeZeile("BLOCK xydy \"1:2:4\"");
 	    xmgrace.setzeZeile("BLOCK xydy \"1:5:7\"");
 	    xmgrace.setzeZeile("BLOCK xydy \"1:8:10\"");
@@ -206,32 +206,40 @@ public class Auswertung_LineareKetten_Rg2_Ree {
 	    xmgrace.setzeZeile(" s0 line linestyle 1");
 	    xmgrace.setzeZeile(" s0 line linewidth 1.5");
 	    xmgrace.setzeZeile(" s0 symbol 1");
+	    xmgrace.setzeZeile(" s0 symbol Skip 100");
+	    xmgrace.setzeZeile(" s0 errorbar off");
 	    xmgrace.setzeZeile(" s0 legend \"Rg\\S2\\N\"");
 
 	    xmgrace.setzeZeile(" s1 line color 2");
 	    xmgrace.setzeZeile(" s1 line linestyle 1");
 	    xmgrace.setzeZeile(" s1 line linewidth 1.5");
 	    xmgrace.setzeZeile(" s1 symbol 2");
+	    xmgrace.setzeZeile(" s1 symbol Skip 100");
+	    xmgrace.setzeZeile(" s1 errorbar off");
 	    xmgrace.setzeZeile(" s1 legend \"Rg\\S2\\N\\sx\\N\"");
 	    
 	    xmgrace.setzeZeile(" s2 line color 3");
 	    xmgrace.setzeZeile(" s2 line linestyle 1");
 	    xmgrace.setzeZeile(" s2 line linewidth 1.5");
 	    xmgrace.setzeZeile(" s2 symbol 3");
+	    xmgrace.setzeZeile(" s2 symbol Skip 100");
+	    xmgrace.setzeZeile(" s2 errorbar off");
 	    xmgrace.setzeZeile(" s2 legend \"Rg\\S2\\N\\sy\\N\"");
 
 	    xmgrace.setzeZeile(" s3 line color 4");
 	    xmgrace.setzeZeile(" s3 line linestyle 1");
 	    xmgrace.setzeZeile(" s3 line linewidth 1.5");
 	    xmgrace.setzeZeile(" s3 symbol 4");
+	    xmgrace.setzeZeile(" s3 symbol Skip 100");
+	    xmgrace.setzeZeile(" s3 errorbar off");
 	    xmgrace.setzeZeile(" s3 legend \"Rg\\S2\\N\\sz\\N\"");
 
 	    xmgrace.setzeZeile(" LEGEND 0.15, 0.6");
 	    xmgrace.setzeZeile(" subtitle \"Melt; N="+NrOfMonoPerChain+"; n\\sChain\\N="+NrOfChains+"; c="+((8.0*(MONOMERZAHL-1))/(Gitter_x*Gitter_y*Gitter_z))+";\"");
 
-	    xmgrace.setzeZeile(" SAVEALL \""+dstDir+"/Rg2_Time_"+FileName+".agr\"");
+	    xmgrace.setzeZeile(" SAVEALL \""+dstDir+"/"+FileName+"_Rg2_Time.agr\"");
 
-	    xmgrace.setzeZeile(" PRINT TO \""+dstDir+"/Rg2_Time_"+FileName+".ps\"");
+	    xmgrace.setzeZeile(" PRINT TO \""+dstDir+"/"+FileName+"_Rg2_Time.ps\"");
 	    xmgrace.setzeZeile("DEVICE \"EPS\" OP \"level2\"");
 	    xmgrace.setzeZeile("PRINT");
 		
@@ -239,8 +247,8 @@ public class Auswertung_LineareKetten_Rg2_Ree {
 	   
 	    try {
 	    	
-	    	  System.out.println("xmgrace -batch "+dstDir+"/Rg2_Time_"+FileName+".batch -nosafe -hardcopy");
-		      Runtime.getRuntime().exec("xmgrace -batch "+dstDir+"//Rg2_Time_"+FileName+".batch -nosafe -hardcopy");
+	    	  System.out.println("xmgrace -batch "+dstDir+"/"+FileName+"_Rg2_Time.batch -nosafe -hardcopy");
+		      Runtime.getRuntime().exec("xmgrace -batch "+dstDir+"/"+FileName+"_Rg2_Time.batch -nosafe -hardcopy");
 		    } catch (Exception e) {
 		      System.err.println(e.toString());
 		    }
