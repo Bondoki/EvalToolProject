@@ -383,7 +383,16 @@ public class BFMFileParser {
 	   });
 
 		
-		
+			addFunction( "#!NrOfMonoPerChain=", new Function(){
+				public int MacheWas(String zah)
+				{   
+					int zahl = Integer.parseInt(zah);
+					System.out.println("NrOfMonoPerChain="+ zahl);
+					value = zahl;
+					return 101;
+					
+				}
+		   });
 		
 		
 	}
