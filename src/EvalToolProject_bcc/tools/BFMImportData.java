@@ -539,7 +539,7 @@ public class BFMImportData {
 		
 		//line = loadFile.readNextLine();
 		
-		/*int hj=0;
+		int hj=0;
 		for(int i = 0; i < box_x; i++)
 			for (int k = 0; k < box_y; k++)
 				for (int l = 0; l < box_z; l++)
@@ -616,7 +616,7 @@ public class BFMImportData {
 			}
 			
 		}
-		*/
+		
 	}
 	
 	
@@ -1252,7 +1252,8 @@ public class BFMImportData {
 
 			GitterSetzen(aktuellesMono);
 			
-			
+			//automatic determine NrOfMonomersPerChain
+			NrOfMonoPerChain= -aktuellesMono;
 			
 			neueKetten.add(aktuellesMono);
 			
@@ -1345,7 +1346,8 @@ public class BFMImportData {
   				  
   				 
   		  }
-  		  
+	        NrOfMonoPerChain += aktuellesMono;
+	        
 	       
 	        //System.out.println(1+ "  DetSys1 " +JumpsOver_Z[1]);
 	     }
