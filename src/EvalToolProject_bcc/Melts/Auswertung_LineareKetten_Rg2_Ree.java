@@ -14,6 +14,7 @@ public class Auswertung_LineareKetten_Rg2_Ree {
 	
 	
 	String FileName;
+	String FileNameWithEnd;
 	String FileDirectory;
 	
 	
@@ -48,6 +49,8 @@ public class Auswertung_LineareKetten_Rg2_Ree {
 	Statistik Rg2_y_Stat;
 	Statistik Rg2_z_Stat;
 	
+	Statistik Bondlength2_Stat;
+	
 	Statistik[] Rg2_Time_Stat;
 	Statistik[] Rg2_x_Time_Stat;
 	Statistik[] Rg2_y_Time_Stat;
@@ -60,7 +63,8 @@ public class Auswertung_LineareKetten_Rg2_Ree {
 	public Auswertung_LineareKetten_Rg2_Ree(String fdir, String fname, String dirDst, int nrOfMonoPerChain, int nrOfChains)//, String skip, String current)
 	{
 		//FileName = "1024_1024_0.00391_32";
-		FileName = fname;
+		FileNameWithEnd  = fname;
+		FileName = fname.replaceAll(".bfm", "").replaceFirst(".xo", "");
 		FileDirectory = fdir;//"/home/users/dockhorn/Simulationen/HEPPEGSolution/";
 		
 		dstDir = dirDst;
@@ -72,7 +76,7 @@ public class Auswertung_LineareKetten_Rg2_Ree {
 		System.out.println("-7%6="+ (-7%6));
 		
 		//Determine MaxFrame out of the first file
-		BFMImportData FirstData = new BFMImportData(FileDirectory+ fname+".xo");
+		BFMImportData FirstData = new BFMImportData(FileDirectory+ FileNameWithEnd);
 		int maxframe = FirstData.GetNrOfFrames();
 		deltaT = FirstData.GetDeltaT();
 		
@@ -90,6 +94,8 @@ public class Auswertung_LineareKetten_Rg2_Ree {
 		Rg2_x_Stat= new Statistik();
 		Rg2_y_Stat= new Statistik();
 		Rg2_z_Stat= new Statistik();
+		
+		Bondlength2_Stat= new Statistik();
 		
 		Rg2_Time_Stat= new Statistik[maxframe+1];
 		Rg2_x_Time_Stat= new Statistik[maxframe+1];
@@ -118,7 +124,7 @@ public class Auswertung_LineareKetten_Rg2_Ree {
 		DecimalFormat dh = new DecimalFormat("000");
 		
 		
-		LoadFile(FileName+".xo", 1);
+		LoadFile(FileNameWithEnd, 1);
 		
 		
 		
@@ -156,6 +162,10 @@ public class Auswertung_LineareKetten_Rg2_Ree {
 		rg.setzeZeile("#");
 		rg.setzeZeile("# <(Rg2_z)>  <(Rg2_z)^2> d<Rg2_z> SampleSize");
 		rg.setzeZeile(Rg2_z_Stat.ReturnM1()+" "+(Rg2_z_Stat.ReturnM2())+" "+( 2.0* Rg2_z_Stat.ReturnSigma()/Math.sqrt(1.0*Rg2_z_Stat.ReturnN())) + " " +Rg2_z_Stat.ReturnN());
+		rg.setzeZeile("#");
+		rg.setzeZeile("#");
+		rg.setzeZeile("# <b^2)>  <(b^2)^2> d<b^2> SampleSize");
+		rg.setzeZeile(Bondlength2_Stat.ReturnM1()+" "+(Bondlength2_Stat.ReturnM2())+" "+( 2.0* Bondlength2_Stat.ReturnSigma()/Math.sqrt(1.0*Bondlength2_Stat.ReturnN())) + " " +Bondlength2_Stat.ReturnN());
 			
 		rg.DateiSchliessen();
 		
@@ -423,6 +433,15 @@ public class Auswertung_LineareKetten_Rg2_Ree {
 					Ree2_stat.AddValue(importData.GetDistanceWithoutCheck(nrChains*NrOfMonoPerChain+1, (nrChains+1)*NrOfMonoPerChain));
 				 
 					HG_ree.AddValue(Math.sqrt(importData.GetDistanceWithoutCheck(nrChains*NrOfMonoPerChain+1, (nrChains+1)*NrOfMonoPerChain)));
+				
+					for (int i= nrChains*NrOfMonoPerChain+1; i < (nrChains+1)*NrOfMonoPerChain; i++)
+					{
+						double bondlength_X = 1.0*(importData.PolymerKoordinaten[i+1][0]-importData.PolymerKoordinaten[i][0]);
+						double bondlength_Y = 1.0*(importData.PolymerKoordinaten[i+1][1]-importData.PolymerKoordinaten[i][1]);
+						double bondlength_Z = 1.0*(importData.PolymerKoordinaten[i+1][2]-importData.PolymerKoordinaten[i][2]);
+						
+						Bondlength2_Stat.AddValue(bondlength_X*bondlength_X+bondlength_Y*bondlength_Y+bondlength_Z*bondlength_Z);
+					}
 				}
 				
 				

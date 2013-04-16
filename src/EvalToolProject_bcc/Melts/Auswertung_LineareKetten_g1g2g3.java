@@ -66,7 +66,7 @@ public class Auswertung_LineareKetten_g1g2g3 {
 	{
 		//FileName = "1024_1024_0.00391_32";
 		FileNameWithEnd = fname;
-		FileName = fname.replaceFirst(".bfm", "").replaceFirst(".xo", "");
+		FileName = fname.replaceAll(".bfm", "").replaceFirst(".xo", "");
 		FileDirectory = fdir;//"/home/users/dockhorn/Simulationen/HEPPEGSolution/";
 		
 		dstDir = dirDst;
@@ -163,7 +163,7 @@ public class Auswertung_LineareKetten_g1g2g3 {
 		
 		BFMFileSaver g1Saver = new BFMFileSaver();
 		//rg.DateiAnlegen("/home/users/dockhorn/Simulationen/HEPPEGConnectedGel/Auswertung_Gamma_"+gamma+"/StarPEG_CumBonds_HepPEGConnectedGel_"+FileName+".dat", false);
-		g1Saver.DateiAnlegen(dirDst+"/"+FileName+"_g123_Time.dat", false);
+		g1Saver.DateiAnlegen(dirDst+"/"+FileName+"_g123_Time_df"+diffFrame+"_f0_"+(startAtFrame+1)+".dat", false);
 		g1Saver.setzeZeile("# NrOfMonomersPerChain="+ NrOfMonoPerChain);
 		g1Saver.setzeZeile("# NrOfChains="+ NrOfChains);
 		g1Saver.setzeZeile("# NrDensity c="+((8.0*(MONOMERZAHL-1))/(Gitter_x*Gitter_y*Gitter_z)));
@@ -171,7 +171,7 @@ public class Auswertung_LineareKetten_g1g2g3 {
 		g1Saver.setzeZeile("# dt = "+ (diffFrame*deltaT) + "    dframe = " + diffFrame);
 		g1Saver.setzeZeile("# t  g1  (g1)^2 d(g1) g2  (g2)^2 d(g2) g3  (g3)^2 d(g3) SampleSize");
 		
-		for(int time=0; time <= (maxframe-startAtFrame); time++)
+		for(int time=0; time < (maxframe-startAtFrame); time++)
 			g1Saver.setzeZeile((deltaT*time) + " " + g1_Time_Stat[time].ReturnM1()+" "+(g1_Time_Stat[time].ReturnM2())+" "+( 2.0* g1_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g1_Time_Stat[time].ReturnN())) + " " + g2_Time_Stat[time].ReturnM1()+" "+(g2_Time_Stat[time].ReturnM2())+" "+( 2.0* g2_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g2_Time_Stat[time].ReturnN())) + " " + g3_Time_Stat[time].ReturnM1()+" "+(g3_Time_Stat[time].ReturnM2())+" "+( 2.0* g3_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g3_Time_Stat[time].ReturnN())) + " "+g3_Time_Stat[time].ReturnN());
 		
 		
@@ -185,12 +185,12 @@ public class Auswertung_LineareKetten_g1g2g3 {
 	protected void createXmGraceFile()
 	{
 		BFMFileSaver xmgrace = new BFMFileSaver();
-		xmgrace.DateiAnlegen(dstDir+"/"+FileName+"_g123_Time.batch", false);
+		xmgrace.DateiAnlegen(dstDir+"/"+FileName+"_g123_Time_df"+diffFrame+"_f0_"+(startAtFrame+1)+".batch", false);
 		xmgrace.setzeZeile("arrange (1,1,.1,.6,.6,ON,ON,ON)");
 	    xmgrace.setzeZeile("FOCUS G0");
 	    //xmgrace.setzeZeile("G0 TYPE XY");
 	    xmgrace.setzeZeile(" AUTOSCALE ONREAD None");
-	    xmgrace.setzeZeile("READ BLOCK \""+dstDir+""+FileName+"_g123_Time.dat\"");
+	    xmgrace.setzeZeile("READ BLOCK \""+dstDir+""+FileName+"_g123_Time_df"+diffFrame+"_f0_"+(startAtFrame+1)+".dat\"");
 	    xmgrace.setzeZeile("BLOCK xydy \"1:2:4\"");
 	    xmgrace.setzeZeile("BLOCK xydy \"1:5:7\"");
 	    xmgrace.setzeZeile("BLOCK xydy \"1:8:10\"");
@@ -204,7 +204,7 @@ public class Auswertung_LineareKetten_g1g2g3 {
 	    xmgrace.setzeZeile(" world xmin 10000");
 	    xmgrace.setzeZeile(" world xmax 100000000.0");
 	    xmgrace.setzeZeile(" world ymin 0.5");
-	    xmgrace.setzeZeile(" world ymax 200000.0");
+	    xmgrace.setzeZeile(" world ymax 500000.0");
 	    
 	    xmgrace.setzeZeile(" xaxis label \"t [MCS]\"");
 	    xmgrace.setzeZeile(" xaxis TICK MAJOR on");
@@ -251,9 +251,9 @@ public class Auswertung_LineareKetten_g1g2g3 {
 	    xmgrace.setzeZeile(" LEGEND 0.15, 0.6");
 	    xmgrace.setzeZeile(" subtitle \"Melt; N="+NrOfMonoPerChain+"; n\\sChain\\N="+NrOfChains+"; c="+((8.0*(MONOMERZAHL-1))/(Gitter_x*Gitter_y*Gitter_z))+";dt="+(diffFrame*deltaT)+";t\\sBegin\\N="+(startAtFrame*deltaT)+"\"");
 
-	    xmgrace.setzeZeile(" SAVEALL \""+dstDir+"/"+FileName+"_g123_Time.agr\"");
+	    xmgrace.setzeZeile(" SAVEALL \""+dstDir+"/"+FileName+"_g123_Time_df"+diffFrame+"_f0_"+(startAtFrame+1)+".agr\"");
 
-	    xmgrace.setzeZeile(" PRINT TO \""+dstDir+"/"+FileName+"_g123_Time.ps\"");
+	    xmgrace.setzeZeile(" PRINT TO \""+dstDir+"/"+FileName+"_g123_Time_df"+diffFrame+"_f0_"+(startAtFrame+1)+".ps\"");
 	    xmgrace.setzeZeile("DEVICE \"EPS\" OP \"level2\"");
 	    xmgrace.setzeZeile("PRINT");
 		
@@ -261,8 +261,8 @@ public class Auswertung_LineareKetten_g1g2g3 {
 	   
 	    try {
 	    	
-	    	  System.out.println("xmgrace -batch "+dstDir+"/"+FileName+"_g123_Time.batch -nosafe -hardcopy");
-		      Runtime.getRuntime().exec("xmgrace -batch "+dstDir+"/"+FileName+"_g123_Time.batch -nosafe -hardcopy");
+	    	  System.out.println("xmgrace -batch "+dstDir+"/"+FileName+"_g123_Time_df"+diffFrame+"_f0_"+(startAtFrame+1)+".batch -nosafe -hardcopy");
+		      Runtime.getRuntime().exec("xmgrace -batch "+dstDir+"/"+FileName+"_g123_Time_df"+diffFrame+"_f0_"+(startAtFrame+1)+".batch -nosafe -hardcopy");
 		    } catch (Exception e) {
 		      System.err.println(e.toString());
 		    }
@@ -373,7 +373,7 @@ public class Auswertung_LineareKetten_g1g2g3 {
 			periodRB = true;
 		
 		
-		/*System.out.println("Nr of Monomers per Chains in File: "+ importData.NrOfMonoPerChain);
+		System.out.println("Nr of Monomers per Chains in File: "+ importData.NrOfMonoPerChain);
 		if(importData.NrOfMonoPerChain != NrOfMonoPerChain)
 		{
 			System.out.println("Nr of Monomers per Chains does not met. Exiting...");
@@ -384,7 +384,7 @@ public class Auswertung_LineareKetten_g1g2g3 {
 		{
 			System.out.println("Nr of Chains does not met. Exiting...");
 			System.exit(1);
-		}*/
+		}
 		
 		NrofFrames = importData.GetNrOfFrames();
 	
@@ -422,7 +422,8 @@ public class Auswertung_LineareKetten_g1g2g3 {
 					Rcom_x /= 1.0*(NrOfMonoPerChain);
 					Rcom_y /= 1.0*(NrOfMonoPerChain);
 					Rcom_z /= 1.0*(NrOfMonoPerChain);
-					  
+					
+					/*
 					rCOM_X[(int) (importData.MCSTime/(deltaT))][nrChains]=Rcom_x; //[time][idx=chainnumber]
 					rCOM_Y[(int) (importData.MCSTime/(deltaT))][nrChains]=Rcom_y;//[time][idx=chainnumber]
 					rCOM_Z[(int) (importData.MCSTime/(deltaT))][nrChains]=Rcom_z;//[time][idx=chainnumber]
@@ -430,15 +431,16 @@ public class Auswertung_LineareKetten_g1g2g3 {
 					rN2_X[(int) (importData.MCSTime/(deltaT))][nrChains]=importData.PolymerKoordinaten[nrChains*NrOfMonoPerChain+NrOfMonoPerChain/2][0]; //[time][idx=chainnumber]
 					rN2_Y[(int) (importData.MCSTime/(deltaT))][nrChains]=importData.PolymerKoordinaten[nrChains*NrOfMonoPerChain+NrOfMonoPerChain/2][1]; //[time][idx=chainnumber]
 					rN2_Z[(int) (importData.MCSTime/(deltaT))][nrChains]=importData.PolymerKoordinaten[nrChains*NrOfMonoPerChain+NrOfMonoPerChain/2][2]; //[time][idx=chainnumber]
+					*/
 					
-					/*rCOM_X[frame-1][nrChains]=Rcom_x; //[time][idx=chainnumber]
+					rCOM_X[frame-1][nrChains]=Rcom_x; //[time][idx=chainnumber]
 					rCOM_Y[frame-1][nrChains]=Rcom_y;//[time][idx=chainnumber]
 					rCOM_Z[frame-1][nrChains]=Rcom_z;//[time][idx=chainnumber]
 					
 					rN2_X[frame-1][nrChains]=importData.PolymerKoordinaten[nrChains*NrOfMonoPerChain+NrOfMonoPerChain/2][0]; //[time][idx=chainnumber]
 					rN2_Y[frame-1][nrChains]=importData.PolymerKoordinaten[nrChains*NrOfMonoPerChain+NrOfMonoPerChain/2][1]; //[time][idx=chainnumber]
 					rN2_Z[frame-1][nrChains]=importData.PolymerKoordinaten[nrChains*NrOfMonoPerChain+NrOfMonoPerChain/2][2]; //[time][idx=chainnumber]
-					*/
+					
 				}
 				
 				
