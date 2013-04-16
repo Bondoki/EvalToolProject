@@ -47,13 +47,23 @@ public class Auswertung_LineareKetten_g1g2g3 {
 	double[][] rCOM_Y; //[time][idx=chainnumber]
 	double[][] rCOM_Z; //[time][idx=chainnumber]
 	
-	double[][] rN2_X; //[time][idx=chainnumber]
-	double[][] rN2_Y; //[time][idx=chainnumber]
-	double[][] rN2_Z; //[time][idx=chainnumber]
+	double[][] rN2_X; //[time][idx=chainnumber] Center Monomer
+	double[][] rN2_Y; //[time][idx=chainnumber] Center Monomer
+	double[][] rN2_Z; //[time][idx=chainnumber] Center Monomer
+	
+	double[][] rFirst_X; //[time][idx=chainnumber] First Chain Monomer
+	double[][] rFirst_Y; //[time][idx=chainnumber] First Chain Monomer
+	double[][] rFirst_Z; //[time][idx=chainnumber] First Chain Monomer
+	
+	double[][] rLast_X; //[time][idx=chainnumber] Last Chain Monomer
+	double[][] rLast_Y; //[time][idx=chainnumber] Last Chain Monomer
+	double[][] rLast_Z; //[time][idx=chainnumber] Last Chain Monomer
+	
 	
 	Statistik[] g1_Time_Stat;
 	Statistik[] g2_Time_Stat;
 	Statistik[] g3_Time_Stat;
+	Statistik[] g4_Time_Stat;
 	
 	int startAtFrame;
 	int diffFrame;
@@ -102,15 +112,26 @@ public class Auswertung_LineareKetten_g1g2g3 {
 		rN2_Y = new double[maxframe+1][nrOfChains]; //[time][idx=chainnumber]
 		rN2_Z = new double[maxframe+1][nrOfChains]; //[time][idx=chainnumber]
 		
+		rFirst_X = new double[maxframe+1][nrOfChains]; //[time][idx=chainnumber]
+		rFirst_Y = new double[maxframe+1][nrOfChains]; //[time][idx=chainnumber]
+		rFirst_Z = new double[maxframe+1][nrOfChains]; //[time][idx=chainnumber]
+		
+		rLast_X = new double[maxframe+1][nrOfChains]; //[time][idx=chainnumber]
+		rLast_Y = new double[maxframe+1][nrOfChains]; //[time][idx=chainnumber]
+		rLast_Z = new double[maxframe+1][nrOfChains]; //[time][idx=chainnumber]
+		
+		
 		g1_Time_Stat = new Statistik[maxframe+1];
 		g2_Time_Stat = new Statistik[maxframe+1];
 		g3_Time_Stat = new Statistik[maxframe+1];
+		g4_Time_Stat = new Statistik[maxframe+1];
 		
 		for(int i = 0; i <= maxframe; i++)
 		{
 			g1_Time_Stat[i] = new Statistik();
 			g2_Time_Stat[i] = new Statistik();
 			g3_Time_Stat[i] = new Statistik();
+			g4_Time_Stat[i] = new Statistik();
 		}
 		
 		
@@ -144,6 +165,14 @@ public class Auswertung_LineareKetten_g1g2g3 {
 						double diffRN2_Y = rN2_Y[startAtFrame+time+dt][nrChains]-rN2_Y[startAtFrame+dt][nrChains];
 						double diffRN2_Z = rN2_Z[startAtFrame+time+dt][nrChains]-rN2_Z[startAtFrame+dt][nrChains];
 						
+						double diffRFirst_X = rFirst_X[startAtFrame+time+dt][nrChains]-rFirst_X[startAtFrame+dt][nrChains];
+						double diffRFirst_Y = rFirst_Y[startAtFrame+time+dt][nrChains]-rFirst_Y[startAtFrame+dt][nrChains];
+						double diffRFirst_Z = rFirst_Z[startAtFrame+time+dt][nrChains]-rFirst_Z[startAtFrame+dt][nrChains];
+						
+						double diffRLast_X = rLast_X[startAtFrame+time+dt][nrChains]-rLast_X[startAtFrame+dt][nrChains];
+						double diffRLast_Y = rLast_Y[startAtFrame+time+dt][nrChains]-rLast_Y[startAtFrame+dt][nrChains];
+						double diffRLast_Z = rLast_Z[startAtFrame+time+dt][nrChains]-rLast_Z[startAtFrame+dt][nrChains];
+						
 						double diffRN2MRcom_X = rN2_X[startAtFrame+time+dt][nrChains]-rCOM_X[startAtFrame+time+dt][nrChains]-(rN2_X[startAtFrame+dt][nrChains]-rCOM_X[startAtFrame+dt][nrChains]);
 						double diffRN2MRcom_Y = rN2_Y[startAtFrame+time+dt][nrChains]-rCOM_Y[startAtFrame+time+dt][nrChains]-(rN2_Y[startAtFrame+dt][nrChains]-rCOM_Y[startAtFrame+dt][nrChains]);
 						double diffRN2MRcom_Z = rN2_Z[startAtFrame+time+dt][nrChains]-rCOM_Z[startAtFrame+time+dt][nrChains]-(rN2_Z[startAtFrame+dt][nrChains]-rCOM_Z[startAtFrame+dt][nrChains]);
@@ -153,6 +182,11 @@ public class Auswertung_LineareKetten_g1g2g3 {
 						g2_Time_Stat[time].AddValue(diffRN2MRcom_X*diffRN2MRcom_X + diffRN2MRcom_Y*diffRN2MRcom_Y + diffRN2MRcom_Z*diffRN2MRcom_Z);
 						
 						g3_Time_Stat[time].AddValue(diffRcom_X*diffRcom_X+diffRcom_Y*diffRcom_Y+diffRcom_Z*diffRcom_Z);
+					
+						g4_Time_Stat[time].AddValue(diffRFirst_X*diffRFirst_X+diffRFirst_Y*diffRFirst_Y+diffRFirst_Z*diffRFirst_Z);
+						g4_Time_Stat[time].AddValue(diffRLast_X*diffRLast_X+diffRLast_Y*diffRLast_Y+diffRLast_Z*diffRLast_Z);
+						
+						
 					}
 				}
 			
@@ -169,10 +203,10 @@ public class Auswertung_LineareKetten_g1g2g3 {
 		g1Saver.setzeZeile("# NrDensity c="+((8.0*(MONOMERZAHL-1))/(Gitter_x*Gitter_y*Gitter_z)));
 		g1Saver.setzeZeile("# tBeginn = "+ (startAtFrame*deltaT) + "    startAtFrame(+1) = " + (startAtFrame+1));
 		g1Saver.setzeZeile("# dt = "+ (diffFrame*deltaT) + "    dframe = " + diffFrame);
-		g1Saver.setzeZeile("# t  g1  (g1)^2 d(g1) g2  (g2)^2 d(g2) g3  (g3)^2 d(g3) SampleSize");
+		g1Saver.setzeZeile("# t  g1  (g1)^2 d(g1) g2  (g2)^2 d(g2) g3  (g3)^2 d(g3) g4  (g4)^2 d(g4)SampleSize");
 		
 		for(int time=0; time < (maxframe-startAtFrame); time++)
-			g1Saver.setzeZeile((deltaT*time) + " " + g1_Time_Stat[time].ReturnM1()+" "+(g1_Time_Stat[time].ReturnM2())+" "+( 2.0* g1_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g1_Time_Stat[time].ReturnN())) + " " + g2_Time_Stat[time].ReturnM1()+" "+(g2_Time_Stat[time].ReturnM2())+" "+( 2.0* g2_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g2_Time_Stat[time].ReturnN())) + " " + g3_Time_Stat[time].ReturnM1()+" "+(g3_Time_Stat[time].ReturnM2())+" "+( 2.0* g3_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g3_Time_Stat[time].ReturnN())) + " "+g3_Time_Stat[time].ReturnN());
+			g1Saver.setzeZeile((deltaT*time) + " " + g1_Time_Stat[time].ReturnM1()+" "+(g1_Time_Stat[time].ReturnM2())+" "+( 2.0* g1_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g1_Time_Stat[time].ReturnN())) + " " + g2_Time_Stat[time].ReturnM1()+" "+(g2_Time_Stat[time].ReturnM2())+" "+( 2.0* g2_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g2_Time_Stat[time].ReturnN())) + " " + g3_Time_Stat[time].ReturnM1()+" "+(g3_Time_Stat[time].ReturnM2())+" "+( 2.0* g3_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g3_Time_Stat[time].ReturnN())) + " " + g4_Time_Stat[time].ReturnM1()+" "+(g4_Time_Stat[time].ReturnM2())+" "+( 2.0* g4_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g4_Time_Stat[time].ReturnN())) + " "+g4_Time_Stat[time].ReturnN());
 		
 		
 		g1Saver.DateiSchliessen();
@@ -194,6 +228,7 @@ public class Auswertung_LineareKetten_g1g2g3 {
 	    xmgrace.setzeZeile("BLOCK xydy \"1:2:4\"");
 	    xmgrace.setzeZeile("BLOCK xydy \"1:5:7\"");
 	    xmgrace.setzeZeile("BLOCK xydy \"1:8:10\"");
+	    xmgrace.setzeZeile("BLOCK xydy \"1:11:13\"");
 	    //xmgrace.setzeZeile("READ BLOCK \""+dstDir+"Percolation_PEG_BMC_Distribution_HepPEGConnectedGel_"+FileName+".dat\"");
 	    //xmgrace.setzeZeile("BLOCK xy \"1:3\"");
 	    //xmgrace.setzeZeile("BLOCK xy \"1:5\"");
@@ -246,6 +281,16 @@ public class Auswertung_LineareKetten_g1g2g3 {
 	    xmgrace.setzeZeile(" s2 SYMBOL Skip 100");
 	    xmgrace.setzeZeile(" s2 SYMBOL linewidth 1.5");
 	    xmgrace.setzeZeile(" s2 legend \"g3\"");
+
+	    xmgrace.setzeZeile(" s3 line color 4");
+	    xmgrace.setzeZeile(" s3 line linestyle 1");
+	    xmgrace.setzeZeile(" s3 line linewidth 1.5");
+	    xmgrace.setzeZeile(" s3 symbol 0");
+	    //xmgrace.setzeZeile(" s3 symbol 3");
+	    xmgrace.setzeZeile(" s3 errorbar off");
+	    xmgrace.setzeZeile(" s3 SYMBOL Skip 100");
+	    xmgrace.setzeZeile(" s3 SYMBOL linewidth 1.5");
+	    xmgrace.setzeZeile(" s3 legend \"g4\"");
 
 	    
 	    xmgrace.setzeZeile(" LEGEND 0.15, 0.6");
@@ -440,6 +485,14 @@ public class Auswertung_LineareKetten_g1g2g3 {
 					rN2_X[frame-1][nrChains]=importData.PolymerKoordinaten[nrChains*NrOfMonoPerChain+NrOfMonoPerChain/2][0]; //[time][idx=chainnumber]
 					rN2_Y[frame-1][nrChains]=importData.PolymerKoordinaten[nrChains*NrOfMonoPerChain+NrOfMonoPerChain/2][1]; //[time][idx=chainnumber]
 					rN2_Z[frame-1][nrChains]=importData.PolymerKoordinaten[nrChains*NrOfMonoPerChain+NrOfMonoPerChain/2][2]; //[time][idx=chainnumber]
+					
+					rFirst_X[frame-1][nrChains]=importData.PolymerKoordinaten[nrChains*NrOfMonoPerChain+1][0]; //[time][idx=chainnumber]
+					rFirst_Y[frame-1][nrChains]=importData.PolymerKoordinaten[nrChains*NrOfMonoPerChain+1][1]; //[time][idx=chainnumber]
+					rFirst_Z[frame-1][nrChains]=importData.PolymerKoordinaten[nrChains*NrOfMonoPerChain+1][2]; //[time][idx=chainnumber]
+					
+					rLast_X[frame-1][nrChains]=importData.PolymerKoordinaten[nrChains*NrOfMonoPerChain+NrOfMonoPerChain][0]; //[time][idx=chainnumber]
+					rLast_Y[frame-1][nrChains]=importData.PolymerKoordinaten[nrChains*NrOfMonoPerChain+NrOfMonoPerChain][1]; //[time][idx=chainnumber]
+					rLast_Z[frame-1][nrChains]=importData.PolymerKoordinaten[nrChains*NrOfMonoPerChain+NrOfMonoPerChain][2]; //[time][idx=chainnumber]
 					
 				}
 				
