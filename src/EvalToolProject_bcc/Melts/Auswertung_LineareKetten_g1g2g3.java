@@ -206,8 +206,10 @@ public class Auswertung_LineareKetten_g1g2g3 {
 		g1Saver.setzeZeile("# t  g1  (g1)^2 d(g1) g2  (g2)^2 d(g2) g3  (g3)^2 d(g3) g4  (g4)^2 d(g4)SampleSize");
 		
 		for(int time=0; time < (maxframe-startAtFrame); time++)
-			g1Saver.setzeZeile((deltaT*time) + " " + g1_Time_Stat[time].ReturnM1()+" "+(g1_Time_Stat[time].ReturnM2())+" "+( 2.0* g1_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g1_Time_Stat[time].ReturnN())) + " " + g2_Time_Stat[time].ReturnM1()+" "+(g2_Time_Stat[time].ReturnM2())+" "+( 2.0* g2_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g2_Time_Stat[time].ReturnN())) + " " + g3_Time_Stat[time].ReturnM1()+" "+(g3_Time_Stat[time].ReturnM2())+" "+( 2.0* g3_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g3_Time_Stat[time].ReturnN())) + " " + g4_Time_Stat[time].ReturnM1()+" "+(g4_Time_Stat[time].ReturnM2())+" "+( 2.0* g4_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g4_Time_Stat[time].ReturnN())) + " "+g4_Time_Stat[time].ReturnN());
-		
+		{
+			if(g1_Time_Stat[time].ReturnN() > 2)
+				g1Saver.setzeZeile((deltaT*time) + " " + g1_Time_Stat[time].ReturnM1()+" "+(g1_Time_Stat[time].ReturnM2())+" "+( 2.0* g1_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g1_Time_Stat[time].ReturnN())) + " " + g2_Time_Stat[time].ReturnM1()+" "+(g2_Time_Stat[time].ReturnM2())+" "+( 2.0* g2_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g2_Time_Stat[time].ReturnN())) + " " + g3_Time_Stat[time].ReturnM1()+" "+(g3_Time_Stat[time].ReturnM2())+" "+( 2.0* g3_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g3_Time_Stat[time].ReturnN())) + " " + g4_Time_Stat[time].ReturnM1()+" "+(g4_Time_Stat[time].ReturnM2())+" "+( 2.0* g4_Time_Stat[time].ReturnSigma()/Math.sqrt(1.0*g4_Time_Stat[time].ReturnN())) + " "+g4_Time_Stat[time].ReturnN());
+		}
 		
 		g1Saver.DateiSchliessen();
 		

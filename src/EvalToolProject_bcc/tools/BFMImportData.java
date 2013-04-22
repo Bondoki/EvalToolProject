@@ -539,7 +539,7 @@ public class BFMImportData {
 		
 		//line = loadFile.readNextLine();
 		
-		int hj=0;
+		/*int hj=0;
 		for(int i = 0; i < box_x; i++)
 			for (int k = 0; k < box_y; k++)
 				for (int l = 0; l < box_z; l++)
@@ -615,7 +615,7 @@ public class BFMImportData {
 				System.exit(1);
 			}
 			
-		}
+		}*/
 		
 	}
 	

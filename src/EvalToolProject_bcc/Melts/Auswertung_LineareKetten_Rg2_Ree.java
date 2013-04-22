@@ -166,7 +166,11 @@ public class Auswertung_LineareKetten_Rg2_Ree {
 		rg.setzeZeile("#");
 		rg.setzeZeile("# <b^2)>  <(b^2)^2> d<b^2> SampleSize");
 		rg.setzeZeile(Bondlength2_Stat.ReturnM1()+" "+(Bondlength2_Stat.ReturnM2())+" "+( 2.0* Bondlength2_Stat.ReturnSigma()/Math.sqrt(1.0*Bondlength2_Stat.ReturnN())) + " " +Bondlength2_Stat.ReturnN());
-			
+		rg.setzeZeile("#");
+		rg.setzeZeile("#");
+		rg.setzeZeile("# <Rg^2/b^2)> d<Rg^2/b^2>");
+		rg.setzeZeile((Rg2_Stat.ReturnM1()/Bondlength2_Stat.ReturnM1())+" "+( (1.0/Bondlength2_Stat.ReturnM1())*(2.0* Rg2_Stat.ReturnSigma()/Math.sqrt(1.0*Rg2_Stat.ReturnN())) +  (Rg2_Stat.ReturnM1()/(Bondlength2_Stat.ReturnM1()*Bondlength2_Stat.ReturnM1()))*( 2.0* Bondlength2_Stat.ReturnSigma()/Math.sqrt(1.0*Bondlength2_Stat.ReturnN())) ) );
+		
 		rg.DateiSchliessen();
 		
 		
