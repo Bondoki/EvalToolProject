@@ -1,2 +1,7 @@
 bin/
 *.sh
+*.bfm
+*.xo
+*.dat
+*.ps
+*.agr
