@@ -1,5 +1,7 @@
 package EvalToolProject_ice.SingleObjects;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 import EvalToolProject_ice.tools.BFMFileSaver;
 import EvalToolProject_ice.tools.BFMImportData;
@@ -12,7 +14,7 @@ import EvalToolProject_ice.tools.Statistik;
 
 import EvalToolProject_ice.tools.HistogrammStatistik;
 
-public class Auswertung_Dendrimer_ZCOM_WHAM {
+public class Auswertung_Dendrimer_RK2K_Harmonic_WHAM {
 
 
 	
@@ -36,27 +38,28 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 	
 	int MONOMERZAHL;
 	
-	Statistik[] ZCOM_stat;
+	Statistik[] RCom2Com_stat;
 	
-	Histogramm[] HG_ZCOM_Plain;
-	HistogrammStatistik[] HG_ZCOM_Statistik;
+	Histogramm[] HG_RCom2Com_Plain;
+	HistogrammStatistik[] HG_RCom2Com_Statistik;
 	
-	HistogrammStatistik HG_ZCOM_StatistikTotal;
+	HistogrammStatistik HG_RCom2Com_StatistikTotal;
 	
-	BFMFileSaver histo_ZCOM;
+	BFMFileSaver histo_RCom2Com;
 	
 	Int_IntArrayList_Table Bindungsnetzwerk; 
 	
 	long deltaT;
 	
 	double[] EquLength;
+	double[] SpringConstant;
 	double[] OffSetF;
 	
 	
 	String dstDir;
 	
 	
-	public Auswertung_Dendrimer_ZCOM_WHAM(String fdir, String fname, String dirDst, double springconstant)//, String skip, String current)
+	public Auswertung_Dendrimer_RK2K_Harmonic_WHAM(String fdir, String fname, String dirDst)//, String skip, String current)
 	{
 		//FileName = "1024_1024_0.00391_32";
 		FileNameWithEnd  = fname;
@@ -65,8 +68,15 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 		
 		dstDir = dirDst;
 		
+		/*for(int i = -100; i < 100; i++)
+		{
+			double x = (0.2*i);
+			
+			System.out.println(x + " -> "+ (x-20*Math.round(x/20)));
+			
+		}
 		System.out.println("-7%6="+ (-7%6));
-		
+		*/
 		/*
 		//Determine MaxFrame out of the first file
 		BFMImportData FirstData = new BFMImportData(FileDirectory+ FileNameWithEnd);
@@ -82,256 +92,211 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 		currentFrame = 1;//Integer.parseInt(current);
 		//System.out.println("cf="+currentFrame);
 		
-		int NrOfAllHistogramms = 32;
+		int NrOfAllHistogramms = 129;
 		
 		double lowerBoundary = 0.0-0.5;
-		double higherBoundary = 128-0.5;
-		int NrBins = 256;
+		double higherBoundary = 256-0.5;//128-0.5;
+		int NrBins = 512;//256;
 		
-		ZCOM_stat= new Statistik[NrOfAllHistogramms];
-		HG_ZCOM_Plain = new Histogramm[NrOfAllHistogramms];
-		HG_ZCOM_Statistik = new HistogrammStatistik[NrOfAllHistogramms];
+		
+		RCom2Com_stat= new Statistik[NrOfAllHistogramms];
+		HG_RCom2Com_Plain = new Histogramm[NrOfAllHistogramms];
+		HG_RCom2Com_Statistik = new HistogrammStatistik[NrOfAllHistogramms];
 		
 		EquLength= new double[NrOfAllHistogramms];
+		SpringConstant= new double[NrOfAllHistogramms];
 		OffSetF= new double[NrOfAllHistogramms];
 		
 		for(int i = 0; i < NrOfAllHistogramms; i++)
 		{
-			ZCOM_stat[i] =new Statistik();
-			HG_ZCOM_Plain[i] = new Histogramm(lowerBoundary,higherBoundary,NrBins);
-			HG_ZCOM_Statistik[i] = new HistogrammStatistik(lowerBoundary,higherBoundary,NrBins);
+			RCom2Com_stat[i] =new Statistik();
+			HG_RCom2Com_Plain[i] = new Histogramm(lowerBoundary,higherBoundary,NrBins);
+			HG_RCom2Com_Statistik[i] = new HistogrammStatistik(lowerBoundary,higherBoundary,NrBins);
 			OffSetF[i]=0.0;
-			//EquLength[i]=1.0+2.0*i;
-			EquLength[i]=2.0+2.0*i;
-			System.out.println("EquLength["+i+"]: " + EquLength[i]);
+			EquLength[i]=0.0+0.5*i;//1.0+1.0*i;
+			SpringConstant[i]=1.0;//0.25;
+			//System.out.println("EquLength["+i+"]: " + EquLength[i]);
 		}
 		
-		HG_ZCOM_StatistikTotal = new HistogrammStatistik(lowerBoundary,higherBoundary,NrBins);
 		
-		/*histo_ZCOM= new BFMFileSaver();
-		histo_ZCOM.DateiAnlegen(dirDst+"/"+FileName+"_Histo_ZCOM.dat", false);
-		histo_ZCOM.setzeZeile("# radial probability distributions p(r)");
-		histo_ZCOM.setzeZeile("# normalized to unity: 4*PI*int_0 to inf p(r)*r^2 dr = p0*int_0 to inf p(r)*r^2 dr=1");
-		histo_ZCOM.setzeZeile("# intervall from ["+HG_ZCOM.GetRangeInBinLowerLimit(0)+";"+HG_ZCOM.GetRangeInBinLowerLimit(HG_ZCOM.GetNrBins())+"]");
-		histo_ZCOM.setzeZeile("# intervall thickness: dI="+HG_ZCOM.GetIntervallThickness());
+		
+		HG_RCom2Com_StatistikTotal = new HistogrammStatistik(lowerBoundary,higherBoundary,NrBins);
+		
+		/*histo_RCom2Com= new BFMFileSaver();
+		histo_RCom2Com.DateiAnlegen(dirDst+"/"+FileName+"_Histo_RCom2Com.dat", false);
+		histo_RCom2Com.setzeZeile("# radial probability distributions p(r)");
+		histo_RCom2Com.setzeZeile("# normalized to unity: 4*PI*int_0 to inf p(r)*r^2 dr = p0*int_0 to inf p(r)*r^2 dr=1");
+		histo_RCom2Com.setzeZeile("# intervall from ["+HG_RCom2Com.GetRangeInBinLowerLimit(0)+";"+HG_RCom2Com.GetRangeInBinLowerLimit(HG_RCom2Com.GetNrBins())+"]");
+		histo_RCom2Com.setzeZeile("# intervall thickness: dI="+HG_RCom2Com.GetIntervallThickness());
 		*/
-		DecimalFormat dh = new DecimalFormat("000");
+		DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.GERMAN);
+		otherSymbols.setDecimalSeparator('.');
+		//otherSymbols.setGroupingSeparator('.'); 
+		
+		DecimalFormat dh = new DecimalFormat("0.00", otherSymbols);
+		
 		
 		
 		//LoadFile(FileNameWithEnd, 1);
 		for(int nrHisto = 0; nrHisto < NrOfAllHistogramms; nrHisto++)
 		{
-			//LoadFile(fname+"L"+(int)(EquLength[nrHisto])+".bfm",1,nrHisto);
-			//LoadFile(fname+"L"+(int)(EquLength[nrHisto])+"_reduced.bfm",2000,nrHisto);
-			//LoadFile(fname+"L"+(int)(EquLength[nrHisto])+"_reduced.bfm",20,nrHisto);
-			LoadFile(fname+"_r"+(int)(EquLength[nrHisto])+"_d0.5_reduced.bfm",200,nrHisto);
+			//LoadFile(fname+"R_"+EquLength[nrHisto]+".bfm",1,nrHisto);
 			
+			//LoadFile(fname+"_L"+(int)EquLength[nrHisto]+"_reduced.bfm",100,nrHisto);
+			//LoadFile(fname+"_L"+(int)EquLength[nrHisto]+"_reduced.bfm",500,nrHisto);
+			
+			LoadFile(fname+"_L"+dh.format(EquLength[nrHisto])+".bfm",200,nrHisto);
+			//LoadFile(fname+"_r"+(int)EquLength[nrHisto]+"_reduced.bfm",200,nrHisto);
+			//LoadFile(fname+"_r0_"+(int)EquLength[nrHisto]+"_out.bfm",50,nrHisto);
 			//LoadFile(fname+"R_"+EquLength[nrHisto]+"_C_0.2_HardColloids.bfm",1,nrHisto);
 		}
-		/*
-		LoadFile(fname+"R_3.0.bfm",1,0);
-		LoadFile(fname+"R_3.5.bfm",1,1);
-		LoadFile(fname+"R_4.0.bfm",1,2);
-		LoadFile(fname+"R_4.5.bfm",1,3);
-		LoadFile(fname+"R_5.0.bfm",1,4);
-		LoadFile(fname+"R_5.5.bfm",1,5);
-		LoadFile(fname+"R_6.0.bfm",1,6);
-		LoadFile(fname+"R_6.5.bfm",1,7);
-		LoadFile(fname+"R_7.0.bfm",1,8);
-		LoadFile(fname+"R_7.5.bfm",1,9);
-		LoadFile(fname+"R_8.0.bfm",1,10);
-		LoadFile(fname+"R_8.5.bfm",1,11);
-		LoadFile(fname+"R_9.0.bfm",1,12);
-		LoadFile(fname+"R_9.5.bfm",1,13);
-		LoadFile(fname+"R_10.0.bfm",1,14);
-		LoadFile(fname+"R_10.5.bfm",1,15);
-		LoadFile(fname+"R_11.0.bfm",1,16);
-		LoadFile(fname+"R_11.5.bfm",1,17);
-		LoadFile(fname+"R_12.0.bfm",1,18);
-		LoadFile(fname+"R_12.5.bfm",1,19);
+	
+		/*LoadFile(fname+"_r0_0_out.bfm",50,0);
+		LoadFile(fname+"_r0_2_out.bfm",50,1);
+		LoadFile(fname+"_r0_4_out.bfm",50,2);
+		LoadFile(fname+"_r0_6_out.bfm",50,3);
+		LoadFile(fname+"_r0_8_out.bfm",50,4);
+		LoadFile(fname+"_r0_9_out.bfm",50,5);
+		LoadFile(fname+"_r0_10_out.bfm",50,6);
+		LoadFile(fname+"_r0_11_out.bfm",50,7);
+		LoadFile(fname+"_r0_13_out.bfm",50,8);
+		LoadFile(fname+"_r0_15_out.bfm",50,9);
 		*/
+		
+		//used data out of file
+		for(int nrHisto = 0; nrHisto < NrOfAllHistogramms; nrHisto++)
+			{
+				//SpringConstant[nrHisto]=0.05;
+				System.out.println("EquLength["+nrHisto+"]: " + EquLength[nrHisto]);
+				System.out.println("SprgConst["+nrHisto+"]: " + SpringConstant[nrHisto]);
+			}
+		
+		
 		
 		//perform the normalization of histograms to spherical coordinates
 		for(int nrHisto = 0; nrHisto < NrOfAllHistogramms; nrHisto++)
-		for(int i = 0; i < HG_ZCOM_Plain[nrHisto].GetNrBins(); i++)
+		for(int i = 0; i < HG_RCom2Com_Plain[nrHisto].GetNrBins(); i++)
 		{
-			//sphere
-			//double testnorm = (HG_ZCOM_Plain[nrHisto].GetNrInBinNormiert(i)/(4*Math.PI*HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)*HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)*HG_ZCOM_Plain[nrHisto].GetIntervallThickness()));
+			// by dV~4*PI*r^2*dr
+			//double testnorm = (HG_RCom2Com_Plain[nrHisto].GetNrInBinNormiert(i)/(4*Math.PI*HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)*HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)*HG_RCom2Com_Plain[nrHisto].GetIntervallThickness()));
 		
-			//1D - linear
-			double testnorm = (HG_ZCOM_Plain[nrHisto].GetNrInBinNormiert(i)/(1.0*HG_ZCOM_Plain[nrHisto].GetIntervallThickness()));
+			// by dV=4/3*PI(3r^2*dr+3r*dr^2+dr^3)
+			double testnorm = HG_RCom2Com_Plain[nrHisto].GetNrInBinNormiert(i)/(4.0*Math.PI*(HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)*HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)*HG_RCom2Com_Plain[nrHisto].GetIntervallThickness()+HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)*HG_RCom2Com_Plain[nrHisto].GetIntervallThickness()*HG_RCom2Com_Plain[nrHisto].GetIntervallThickness()+HG_RCom2Com_Plain[nrHisto].GetIntervallThickness()*HG_RCom2Com_Plain[nrHisto].GetIntervallThickness()*HG_RCom2Com_Plain[nrHisto].GetIntervallThickness()/3.0));
 			
-			
-			HG_ZCOM_Statistik[nrHisto].AddValue(HG_ZCOM_Plain[nrHisto].GetRangeInBin(i), testnorm);
+			HG_RCom2Com_Statistik[nrHisto].AddValue(HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i), testnorm);
 		}
 		
 		for(int nrHisto = 0; nrHisto < NrOfAllHistogramms; nrHisto++)
 		{
 		BFMFileSaver histo= new BFMFileSaver();
-		System.out.println(dirDst+"/"+FileName+"Histo_"+EquLength[nrHisto]+".dat");
 		histo.DateiAnlegen(dirDst+"/"+FileName+"Histo_"+EquLength[nrHisto]+".dat", false);
-		//histo.setzeZeile("# normalized to unity: 4*PI*int_0 to inf p(r)*r^2 dr = 1");
-		histo.setzeZeile("# normalized to unity: int_0 to inf p(r) dz = 1");
+		histo.setzeZeile("# normalized to unity: 4*PI*int_0 to inf p(r)*r^2 dr = 1");
 		
-		histo.setzeZeile("# intervall from ["+HG_ZCOM_Statistik[nrHisto].GetRangeInBinLowerLimit(0)+";"+HG_ZCOM_Statistik[nrHisto].GetRangeInBinLowerLimit(HG_ZCOM_Statistik[nrHisto].GetNrBins())+"]");
-		histo.setzeZeile("# intervall thickness: dI="+HG_ZCOM_Statistik[nrHisto].GetIntervallThickness());
-		histo.setzeZeile("# nr of counts: " + HG_ZCOM_Statistik[nrHisto].GetNrOfCounts());
+		histo.setzeZeile("# intervall from ["+HG_RCom2Com_Statistik[nrHisto].GetRangeInBinLowerLimit(0)+";"+HG_RCom2Com_Statistik[nrHisto].GetRangeInBinLowerLimit(HG_RCom2Com_Statistik[nrHisto].GetNrBins())+"]");
+		histo.setzeZeile("# intervall thickness: dI="+HG_RCom2Com_Statistik[nrHisto].GetIntervallThickness());
+		histo.setzeZeile("# nr of counts: " + HG_RCom2Com_Statistik[nrHisto].GetNrOfCounts());
 		histo.setzeZeile("# r  p(r) F=-ln(p)");
 		
-		for(int i = 0; i < HG_ZCOM_Statistik[nrHisto].GetNrBins(); i++)
+		for(int i = 0; i < HG_RCom2Com_Statistik[nrHisto].GetNrBins(); i++)
 		{
-			if(HG_ZCOM_Statistik[nrHisto].GetAverageInBin(i) != 0)
-				histo.setzeZeile(HG_ZCOM_Statistik[nrHisto].GetRangeInBin(i)+" "+HG_ZCOM_Statistik[nrHisto].GetAverageInBin(i) + " "+(-Math.log(HG_ZCOM_Statistik[nrHisto].GetAverageInBin(i))));
+			if(HG_RCom2Com_Statistik[nrHisto].GetAverageInBin(i) != 0)
+				histo.setzeZeile(HG_RCom2Com_Statistik[nrHisto].GetRangeInBin(i)+" "+HG_RCom2Com_Statistik[nrHisto].GetAverageInBin(i) + " "+(-Math.log(HG_RCom2Com_Statistik[nrHisto].GetAverageInBin(i))));
 		}
 		
 		histo.DateiSchliessen();
 		}
+	//perform all calculation to achieve selfconsitency
+		double sumSquare = 0.0;
+		double errorSumSquareFreeEnergy=0.00001;
+		int selfconsitency = 0;
 		
-		//perform all calculation to achieve selfconsitency
-				double sumSquare = 0.0;
-				double errorSumSquareFreeEnergy=0.000001;
-				int selfconsitency = 0;
-				
-			//for(int selfconsitency = 0; selfconsitency < 50000; selfconsitency++)
-			
+	//for(int selfconsitency = 0; selfconsitency < 50000; selfconsitency++)
+	
 	do{
 		//calculate the normalization of total histograms
 		double normTotal = 0.0;
 		double weightTotal = 0.0;
 		
-		for(int i = 0; i < HG_ZCOM_StatistikTotal.GetNrBins(); i++)
+		for(int i = 0; i < HG_RCom2Com_StatistikTotal.GetNrBins(); i++)
 		{
 			normTotal = 0.0;
 			weightTotal = 0.0;
 			
 			for(int nrHisto = 0; nrHisto < NrOfAllHistogramms; nrHisto++)
 			{
-				//double normalisation=4*Math.PI*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)*HG_ZCOM_Plain[nrHisto].GetRangeInBin(i));
+				//double normalisation=4*Math.PI*(HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)*HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i));
 			
-				normTotal += HG_ZCOM_Plain[nrHisto].GetNrOfCounts()*Math.exp(- (0.5*springconstant*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto])*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto]) - OffSetF[nrHisto]) );
-				weightTotal += HG_ZCOM_Plain[nrHisto].GetNrOfCounts()*HG_ZCOM_Statistik[nrHisto].GetAverageInBin(i);
+				normTotal += HG_RCom2Com_Plain[nrHisto].GetNrOfCounts()*Math.exp(- (0.5*SpringConstant[nrHisto]*(HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto])*(HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto]) - OffSetF[nrHisto]) );
+				weightTotal += HG_RCom2Com_Plain[nrHisto].GetNrOfCounts()*HG_RCom2Com_Statistik[nrHisto].GetAverageInBin(i);
 			}
 			
 			// there are entries for the PMF
 			if(normTotal != 0.0)
 			{
-				//double normalisation=4*Math.PI*(HG_ZCOM_StatistikTotal.GetRangeInBin(i)*HG_ZCOM_StatistikTotal.GetRangeInBin(i)*HG_ZCOM_StatistikTotal.GetIntervallThickness());
+				//double normalisation=4*Math.PI*(HG_RCom2Com_StatistikTotal.GetRangeInBin(i)*HG_RCom2Com_StatistikTotal.GetRangeInBin(i)*HG_RCom2Com_StatistikTotal.GetIntervallThickness());
 				
-				HG_ZCOM_StatistikTotal.CleanBin(i);
-				HG_ZCOM_StatistikTotal.AddValue(HG_ZCOM_StatistikTotal.GetRangeInBin(i), weightTotal/(normTotal));
+				HG_RCom2Com_StatistikTotal.CleanBin(i);
+				HG_RCom2Com_StatistikTotal.AddValue(HG_RCom2Com_StatistikTotal.GetRangeInBin(i), weightTotal/(normTotal));
 			}
-			else HG_ZCOM_StatistikTotal.CleanBin(i);
+			else HG_RCom2Com_StatistikTotal.CleanBin(i);
 			
 		}
 		
 		//dump the mean probability
 		/*System.out.println("PMF-prob");
-		for(int i = 0; i < HG_ZCOM_StatistikTotal.GetNrBins(); i++)
+		for(int i = 0; i < HG_RCom2Com_StatistikTotal.GetNrBins(); i++)
 		{
-			System.out.println(HG_ZCOM_StatistikTotal.GetRangeInBin(i)+" "+HG_ZCOM_StatistikTotal.GetAverageInBin(i));
+			System.out.println(HG_RCom2Com_StatistikTotal.GetRangeInBin(i)+" "+HG_RCom2Com_StatistikTotal.GetAverageInBin(i));
 		}
 		*/
-		
 		
 		System.out.println("Iteration: " + selfconsitency);
 		//perform the integration to get the OffsetF
 		sumSquare = 0.0;
 		
-		//perform the integration to get the OffsetF
 		for(int nrHisto = 0; nrHisto < NrOfAllHistogramms; nrHisto++)
 		{
 			double integral = 0.0;
 			
-			for(int i = 0; i < HG_ZCOM_Plain[nrHisto].GetNrBins(); i++)
+			for(int i = 0; i < HG_RCom2Com_Plain[nrHisto].GetNrBins(); i++)
 			{
-				//double normalisation=4*Math.PI*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)*HG_ZCOM_Plain[nrHisto].GetRangeInBin(i));
-				//integral += normalisation*HG_ZCOM_Plain[nrHisto].GetIntervallThickness()*HG_ZCOM_StatistikTotal.GetAverageInBin(i)*Math.exp(- (0.5*0.6*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto])*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto])));
+				//double normalisation=4*Math.PI*(HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)*HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i));
+				//integral += normalisation*HG_RCom2Com_Plain[nrHisto].GetIntervallThickness()*HG_RCom2Com_StatistikTotal.GetAverageInBin(i)*Math.exp(- (0.5*0.6*(HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto])*(HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto])));
 				
-				// sphere
-				//integral += 4*Math.PI*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)*HG_ZCOM_Plain[nrHisto].GetRangeInBin(i))*HG_ZCOM_Plain[nrHisto].GetIntervallThickness()*HG_ZCOM_StatistikTotal.GetAverageInBin(i)*Math.exp(- (0.5*springconstant*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto])*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto])));
-			
-				// 1D linear
-				integral += HG_ZCOM_Plain[nrHisto].GetIntervallThickness()*HG_ZCOM_StatistikTotal.GetAverageInBin(i)*Math.exp(- (0.5*springconstant*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto])*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto])));
-			
+				// by dV=4*PI*r^2*dr
+				//integral += 4*Math.PI*(HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)*HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i))*HG_RCom2Com_Plain[nrHisto].GetIntervallThickness()*HG_RCom2Com_StatistikTotal.GetAverageInBin(i)*Math.exp(- (0.5*SpringConstant[nrHisto]*(HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto])*(HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto])));
+				
+				// by dV=4/3*PI(3r^2*dr+3r*dr^2+dr^3)
+				integral += (4.0*Math.PI*(HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)*HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)*HG_RCom2Com_Plain[nrHisto].GetIntervallThickness()+HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)*HG_RCom2Com_Plain[nrHisto].GetIntervallThickness()*HG_RCom2Com_Plain[nrHisto].GetIntervallThickness()+HG_RCom2Com_Plain[nrHisto].GetIntervallThickness()*HG_RCom2Com_Plain[nrHisto].GetIntervallThickness()*HG_RCom2Com_Plain[nrHisto].GetIntervallThickness()/3.0))*HG_RCom2Com_StatistikTotal.GetAverageInBin(i)*Math.exp(- (0.5*SpringConstant[nrHisto]*(HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto])*(HG_RCom2Com_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto])));
+				
 			}
 			sumSquare += (-Math.log(integral)-OffSetF[nrHisto])*(-Math.log(integral)-OffSetF[nrHisto]);
-			
+
+
 			OffSetF[nrHisto] = -Math.log(integral);
-			
-		}
-		
-		// reduce all OffSet to zero by forcing last window to be OffSetF[NrOfAllHistogramms]=0.0
-		
-		for(int nrHisto = 0; nrHisto < NrOfAllHistogramms; nrHisto++)
-		{
-			OffSetF[nrHisto] -= OffSetF[NrOfAllHistogramms-1];
-			//System.out.println("OffSetF["+nrHisto+"]: " + OffSetF[nrHisto]);
-			
-			if(selfconsitency%20 ==0)
 			System.out.println("OffSetF["+nrHisto+"]: " + OffSetF[nrHisto]);
 		}
-		
-		
+
 		System.out.println("SumOffSetF^2: " + sumSquare);
 		selfconsitency++;
 
 	}while(sumSquare > errorSumSquareFreeEnergy);
+
 	
-	/*
-	// constraint of sum of all weights should be unity
-	double weightSum =0.0;
-	
-	for(int nrHistoAll = 0; nrHistoAll < NrOfAllHistogramms; nrHistoAll++)
-	{
-		double weightSumAtHisto =0.0;
-		
-		for(int i = 0; i < HG_ZCOM_Plain[nrHistoAll].GetNrBins(); i++)
-	{
-		double normTotal = 0.0;
-		double weightTotal = 0.0;
-		
-		for(int j = 0; j < HG_ZCOM_Plain[nrHistoAll].GetNrBins(); j++)
-		for(int nrHisto = 0; nrHisto < NrOfAllHistogramms; nrHisto++)
-		{
-			//double normalisation=4*Math.PI*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)*HG_ZCOM_Plain[nrHisto].GetRangeInBin(i));
-		
-			//normTotal += HG_ZCOM_Plain[nrHisto].GetNrOfCounts()*Math.exp(- (0.5*springconstant*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto])*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(i)-EquLength[nrHisto]) - OffSetF[nrHisto]) );
-			normTotal += HG_ZCOM_Plain[nrHisto].GetNrOfCounts()*Math.exp(- (0.5*springconstant*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(j)-EquLength[nrHisto])*(HG_ZCOM_Plain[nrHisto].GetRangeInBin(j)-EquLength[nrHisto]) - OffSetF[nrHisto]) );
-			
-			
-		}
-		//weightTotal = HG_ZCOM_Plain[nrHistoAll].GetNrOfCounts()*Math.exp(- (0.5*springconstant*(HG_ZCOM_Plain[nrHistoAll].GetRangeInBin(i)-EquLength[nrHistoAll])*(HG_ZCOM_Plain[nrHistoAll].GetRangeInBin(i)-EquLength[nrHistoAll]) - OffSetF[nrHistoAll]) );
-		weightTotal = HG_ZCOM_Plain[nrHistoAll].GetNrOfCounts()*Math.exp(- (0.5*springconstant*(HG_ZCOM_Plain[nrHistoAll].GetRangeInBin(i)-EquLength[nrHistoAll])*(HG_ZCOM_Plain[nrHistoAll].GetRangeInBin(i)-EquLength[nrHistoAll]) - OffSetF[nrHistoAll]) );
-		
-		// there are entries for the PMF
-		if(normTotal != 0.0)
-			weightSumAtHisto +=weightTotal/normTotal;
-		
-		if(normTotal != 0.0)
-		System.out.println("Weight at Histo "+ nrHistoAll + "  in bin " + HG_ZCOM_Plain[nrHistoAll].GetRangeInBin(i) + " == " + weightTotal/normTotal);
-	}
-		System.out.println("Weight at Histo "+ nrHistoAll + " == " + weightSumAtHisto);
-		
-		weightSum += weightSumAtHisto;
-	}
-	
-	System.out.println("Weight Sum 1.0 == " + weightSum);
-	*/
 	//file dump
 	
 	BFMFileSaver histo_RPMF= new BFMFileSaver();
 	histo_RPMF.DateiAnlegen(dirDst+"/"+FileName+"Histo_PMF_WHAM.dat", false);
-	//histo_RPMF.setzeZeile("# normalized to unity: 4*PI*int_0 to inf p(r)*r^2 dr = 1");
-	histo_RPMF.setzeZeile("# normalized to unity: int_0 to inf p(r) dz = 1");
+	histo_RPMF.setzeZeile("# normalized to unity: 4*PI*int_0 to inf p(r)*r^2 dr = 1");
 	histo_RPMF.setzeZeile("# calculation of the mean free energy F using WHAM");
-	histo_RPMF.setzeZeile("# intervall from ["+HG_ZCOM_StatistikTotal.GetRangeInBinLowerLimit(0)+";"+HG_ZCOM_StatistikTotal.GetRangeInBinLowerLimit(HG_ZCOM_StatistikTotal.GetNrBins())+"]");
-	histo_RPMF.setzeZeile("# intervall thickness: dI="+HG_ZCOM_StatistikTotal.GetIntervallThickness());
+	histo_RPMF.setzeZeile("# intervall from ["+HG_RCom2Com_StatistikTotal.GetRangeInBinLowerLimit(0)+";"+HG_RCom2Com_StatistikTotal.GetRangeInBinLowerLimit(HG_RCom2Com_StatistikTotal.GetNrBins())+"]");
+	histo_RPMF.setzeZeile("# intervall thickness: dI="+HG_RCom2Com_StatistikTotal.GetIntervallThickness());
 	histo_RPMF.setzeZeile("# r  p(r) F=-ln(p)");
 	
-	for(int i = 0; i < HG_ZCOM_StatistikTotal.GetNrBins(); i++)
+	for(int i = 0; i < HG_RCom2Com_StatistikTotal.GetNrBins(); i++)
 	{
-		if(HG_ZCOM_StatistikTotal.GetAverageInBin(i) != 0)
-			histo_RPMF.setzeZeile(HG_ZCOM_StatistikTotal.GetRangeInBin(i)+" "+HG_ZCOM_StatistikTotal.GetAverageInBin(i) + " "+(-Math.log(HG_ZCOM_StatistikTotal.GetAverageInBin(i))));
+		if(HG_RCom2Com_StatistikTotal.GetAverageInBin(i) != 0)
+			histo_RPMF.setzeZeile(HG_RCom2Com_StatistikTotal.GetRangeInBin(i)+" "+HG_RCom2Com_StatistikTotal.GetAverageInBin(i) + " "+(-Math.log(HG_RCom2Com_StatistikTotal.GetAverageInBin(i))));
 	}
 	
 	histo_RPMF.DateiSchliessen();
@@ -340,36 +305,37 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 	histo_Offset.DateiAnlegen(dirDst+"/"+FileName+"Histo_PMF_WHAM_Offset.dat", false);
 	histo_Offset.setzeZeile("# normalized to unity: 4*PI*int_0 to inf p(r)*r^2 dr = 1");
 	histo_Offset.setzeZeile("# calculation of the mean free energy F using WHAM");
-	histo_Offset.setzeZeile("# intervall from ["+HG_ZCOM_StatistikTotal.GetRangeInBinLowerLimit(0)+";"+HG_ZCOM_StatistikTotal.GetRangeInBinLowerLimit(HG_ZCOM_StatistikTotal.GetNrBins())+"]");
-	histo_Offset.setzeZeile("# intervall thickness: dI="+HG_ZCOM_StatistikTotal.GetIntervallThickness());
+	histo_Offset.setzeZeile("# intervall from ["+HG_RCom2Com_StatistikTotal.GetRangeInBinLowerLimit(0)+";"+HG_RCom2Com_StatistikTotal.GetRangeInBinLowerLimit(HG_RCom2Com_StatistikTotal.GetNrBins())+"]");
+	histo_Offset.setzeZeile("# intervall thickness: dI="+HG_RCom2Com_StatistikTotal.GetIntervallThickness());
 	histo_Offset.setzeZeile("# window_i F_i k_i l_0,i");
 	
 	for(int nrHisto = 0; nrHisto < NrOfAllHistogramms; nrHisto++)
 	{
-		histo_Offset.setzeZeile(nrHisto + " " + OffSetF[nrHisto]+ " " + EquLength[nrHisto] + " " + springconstant);
+		histo_Offset.setzeZeile(nrHisto + " " + OffSetF[nrHisto]+ " " + EquLength[nrHisto] + " " + SpringConstant[nrHisto]);
 	}
 	
 	histo_Offset.DateiSchliessen();
+	
 		
 		/*double testnorm =0.0;
-		for(int i = 0; i < HG_ZCOM.GetNrBins(); i++)
+		for(int i = 0; i < HG_RCom2Com.GetNrBins(); i++)
 		{
-			testnorm += (HG_ZCOM.GetNrInBinNormiert(i)*(4*Math.PI*HG_ZCOM.GetRangeInBin(i)*HG_ZCOM.GetRangeInBin(i)*HG_ZCOM.GetIntervallThickness()));
+			testnorm += (HG_RCom2Com.GetNrInBinNormiert(i)*(4*Math.PI*HG_RCom2Com.GetRangeInBin(i)*HG_RCom2Com.GetRangeInBin(i)*HG_RCom2Com.GetIntervallThickness()));
 		}
-		histo_ZCOM.setzeZeile("# normalization p0,Sim: "+(1.0/(testnorm)));
-		histo_ZCOM.setzeZeile("# number of entries: "+ HG_ZCOM.GetNrOfCounts());
+		histo_RCom2Com.setzeZeile("# normalization p0,Sim: "+(1.0/(testnorm)));
+		histo_RCom2Com.setzeZeile("# number of entries: "+ HG_RCom2Com.GetNrOfCounts());
 		
 		double test = 0.0;
 		
-		for(int i = 0; i < HG_ZCOM.GetNrBins(); i++)
+		for(int i = 0; i < HG_RCom2Com.GetNrBins(); i++)
 		{
-			histo_ZCOM.setzeZeile(HG_ZCOM.GetRangeInBin(i)+" "+(HG_ZCOM.GetNrInBinNormiert(i)/(4*Math.PI*HG_ZCOM.GetRangeInBin(i)*HG_ZCOM.GetRangeInBin(i)*HG_ZCOM.GetIntervallThickness()))+" "+(HG_ZCOM.GetNrInBin(i)));
-			//testnorm += (HG_ZCOM.GetNrInBinNormiert(i)*(4*Math.PI*HG_ZCOM.GetRangeInBin(i)*HG_ZCOM.GetRangeInBin(i)*HG_ZCOM.GetIntervallThickness()));
-			test += HG_ZCOM.GetNrInBinNormiert(i);
+			histo_RCom2Com.setzeZeile(HG_RCom2Com.GetRangeInBin(i)+" "+(HG_RCom2Com.GetNrInBinNormiert(i)/(4*Math.PI*HG_RCom2Com.GetRangeInBin(i)*HG_RCom2Com.GetRangeInBin(i)*HG_RCom2Com.GetIntervallThickness()))+" "+(HG_RCom2Com.GetNrInBin(i)));
+			//testnorm += (HG_RCom2Com.GetNrInBinNormiert(i)*(4*Math.PI*HG_RCom2Com.GetRangeInBin(i)*HG_RCom2Com.GetRangeInBin(i)*HG_RCom2Com.GetIntervallThickness()));
+			test += HG_RCom2Com.GetNrInBinNormiert(i);
 		}
 		
 		
-		histo_ZCOM.DateiSchliessen();
+		histo_RCom2Com.DateiSchliessen();
 		
 		System.out.println("test_ree: "+ test);	
 		System.out.println("test_norm: "+ testnorm);	
@@ -398,7 +364,7 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 		rg.setzeZeile("#");
 		rg.setzeZeile("#");
 		rg.setzeZeile("# <R_C2C> <(R_C2C)^2> d<R_C2C> SampleSize");
-		rg.setzeZeile(ZCOM_stat.ReturnM1()+" "+(ZCOM_stat.ReturnM2())+" "+( 2.0* ZCOM_stat.ReturnSigma()/Math.sqrt(1.0*ZCOM_stat.ReturnN())) + " " +ZCOM_stat.ReturnN());
+		rg.setzeZeile(RCom2Com_stat.ReturnM1()+" "+(RCom2Com_stat.ReturnM2())+" "+( 2.0* RCom2Com_stat.ReturnSigma()/Math.sqrt(1.0*RCom2Com_stat.ReturnN())) + " " +RCom2Com_stat.ReturnN());
 		rg.setzeZeile("#");
 		rg.setzeZeile("#");
 		rg.setzeZeile("# <b^2)>  <(b^2)^2> d<b^2> SampleSize");
@@ -410,7 +376,7 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 		
 		rg.DateiSchliessen();
 		
-		System.out.println("<R_C2C>  : " + ZCOM_stat.ReturnM1());
+		System.out.println("<R_C2C>  : " + RCom2Com_stat.ReturnM1());
 		//calculates the normalized radial probability for the 3D isotropic HO
 		
 		double normalisation =0.0;
@@ -439,17 +405,17 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 		histo_RSpringPotProb.DateiAnlegen(dirDst+"/"+FileName+"_Histo_RSpringPotProb.dat", false);
 		histo_RSpringPotProb.setzeZeile("# radial probability distributions p(r) of exp(-k/2*(r-l0)^2)");
 		histo_RSpringPotProb.setzeZeile("# normalized to unity: 4*PI*int_0 to inf p(r)*r^2 dr = 1");
-		histo_RSpringPotProb.setzeZeile("# intervall from ["+HG_ZCOM.GetRangeInBinLowerLimit(0)+";"+HG_ZCOM.GetRangeInBinLowerLimit(HG_ZCOM.GetNrBins())+"]");
-		histo_RSpringPotProb.setzeZeile("# intervall thickness: dI="+HG_ZCOM.GetIntervallThickness());
+		histo_RSpringPotProb.setzeZeile("# intervall from ["+HG_RCom2Com.GetRangeInBinLowerLimit(0)+";"+HG_RCom2Com.GetRangeInBinLowerLimit(HG_RCom2Com.GetNrBins())+"]");
+		histo_RSpringPotProb.setzeZeile("# intervall thickness: dI="+HG_RCom2Com.GetIntervallThickness());
 		histo_RSpringPotProb.setzeZeile("# normalization: "+(1.0/(4*Math.PI*normalisation)));
 		histo_RSpringPotProb.setzeZeile("# spring constant k = " + spc);
 		histo_RSpringPotProb.setzeZeile("# equilibrium length = " + eql);
 		histo_RSpringPotProb.setzeZeile("# r  p(r) exp(-k/2*(r-l0)^2)");
 		
-		for(int i = 0; i < HG_ZCOM.GetNrBins(); i++)
+		for(int i = 0; i < HG_RCom2Com.GetNrBins(); i++)
 		{
-			double valueAtR = Math.exp(-0.5*spc*(HG_ZCOM.GetRangeInBin(i)-eql)*(HG_ZCOM.GetRangeInBin(i)-eql));
-			histo_RSpringPotProb.setzeZeile(HG_ZCOM.GetRangeInBin(i)+" "+(valueAtR/((4*Math.PI*normalisation))) + " " + valueAtR);
+			double valueAtR = Math.exp(-0.5*spc*(HG_RCom2Com.GetRangeInBin(i)-eql)*(HG_RCom2Com.GetRangeInBin(i)-eql));
+			histo_RSpringPotProb.setzeZeile(HG_RCom2Com.GetRangeInBin(i)+" "+(valueAtR/((4*Math.PI*normalisation))) + " " + valueAtR);
 			
 		}
 		
@@ -458,18 +424,18 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 		BFMFileSaver histo_P_over_PSpring= new BFMFileSaver();
 		histo_P_over_PSpring.DateiAnlegen(dirDst+"/"+FileName+"_Histo_Fraction_P_PRSpringPotProb.dat", false);
 		histo_P_over_PSpring.setzeZeile("# fraction of p(r) over pS(r)=pS0*exp(-k/2*(r-l0)^2)");
-		histo_P_over_PSpring.setzeZeile("# intervall from ["+HG_ZCOM.GetRangeInBinLowerLimit(0)+";"+HG_ZCOM.GetRangeInBinLowerLimit(HG_ZCOM.GetNrBins())+"]");
-		histo_P_over_PSpring.setzeZeile("# intervall thickness: dI="+HG_ZCOM.GetIntervallThickness());
+		histo_P_over_PSpring.setzeZeile("# intervall from ["+HG_RCom2Com.GetRangeInBinLowerLimit(0)+";"+HG_RCom2Com.GetRangeInBinLowerLimit(HG_RCom2Com.GetNrBins())+"]");
+		histo_P_over_PSpring.setzeZeile("# intervall thickness: dI="+HG_RCom2Com.GetIntervallThickness());
 		histo_P_over_PSpring.setzeZeile("# normalization pS0: "+(1.0/(4*Math.PI*normalisation)));
 		histo_P_over_PSpring.setzeZeile("# spring constant k = " + spc);
 		histo_P_over_PSpring.setzeZeile("# equilibrium length = " + eql);
 		histo_P_over_PSpring.setzeZeile("# r  p(r)/pS(r) -ln(p(r)/pS(r)))");
 		histo_P_over_PSpring.setzeZeile("# set infinity to 1000.0 for visualization");
 		
-		for(int i = 0; i < HG_ZCOM.GetNrBins(); i++)
+		for(int i = 0; i < HG_RCom2Com.GetNrBins(); i++)
 		{
-			double valueAtR = Math.exp(-0.5*spc*(HG_ZCOM.GetRangeInBin(i)-eql)*(HG_ZCOM.GetRangeInBin(i)-eql));
-			double value_P_over_PS = ( (HG_ZCOM.GetNrInBinNormiert(i)/(4*Math.PI*HG_ZCOM.GetRangeInBin(i)*HG_ZCOM.GetRangeInBin(i)*HG_ZCOM.GetIntervallThickness()))/(valueAtR/((4*Math.PI*normalisation))) );
+			double valueAtR = Math.exp(-0.5*spc*(HG_RCom2Com.GetRangeInBin(i)-eql)*(HG_RCom2Com.GetRangeInBin(i)-eql));
+			double value_P_over_PS = ( (HG_RCom2Com.GetNrInBinNormiert(i)/(4*Math.PI*HG_RCom2Com.GetRangeInBin(i)*HG_RCom2Com.GetRangeInBin(i)*HG_RCom2Com.GetIntervallThickness()))/(valueAtR/((4*Math.PI*normalisation))) );
 			
 			double value_Ln_P_over_PS =0.0;
 			
@@ -478,7 +444,7 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 			else value_Ln_P_over_PS =1000.0;
 			
 			
-			histo_P_over_PSpring.setzeZeile(HG_ZCOM.GetRangeInBin(i)+" "+ value_P_over_PS  + " " + value_Ln_P_over_PS);
+			histo_P_over_PSpring.setzeZeile(HG_RCom2Com.GetRangeInBin(i)+" "+ value_P_over_PS  + " " + value_Ln_P_over_PS);
 			
 		}
 		
@@ -487,29 +453,29 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 		BFMFileSaver histo_P_over_PSpringCrop= new BFMFileSaver();
 		histo_P_over_PSpringCrop.DateiAnlegen(dirDst+"/"+FileName+"_Histo_Fraction_P_PRSpringPotProbCrop.dat", false);
 		histo_P_over_PSpringCrop.setzeZeile("# fraction of p(r) over pS(r)=pS0*exp(-k/2*(r-l0)^2)");
-		histo_P_over_PSpringCrop.setzeZeile("# intervall from ["+HG_ZCOM.GetRangeInBinLowerLimit(0)+";"+HG_ZCOM.GetRangeInBinLowerLimit(HG_ZCOM.GetNrBins())+"]");
-		histo_P_over_PSpringCrop.setzeZeile("# intervall thickness: dI="+HG_ZCOM.GetIntervallThickness());
+		histo_P_over_PSpringCrop.setzeZeile("# intervall from ["+HG_RCom2Com.GetRangeInBinLowerLimit(0)+";"+HG_RCom2Com.GetRangeInBinLowerLimit(HG_RCom2Com.GetNrBins())+"]");
+		histo_P_over_PSpringCrop.setzeZeile("# intervall thickness: dI="+HG_RCom2Com.GetIntervallThickness());
 		histo_P_over_PSpringCrop.setzeZeile("# normalization pS0: "+(1.0/(4*Math.PI*normalisation)));
 		histo_P_over_PSpringCrop.setzeZeile("# spring constant k = " + spc);
 		histo_P_over_PSpringCrop.setzeZeile("# equilibrium length = " + eql);
 		histo_P_over_PSpringCrop.setzeZeile("# r  p(r)/pS(r) -ln(p(r)/pS(r)))");
 		histo_P_over_PSpringCrop.setzeZeile("# set infinity to 1000.0 for visualization");
-		histo_P_over_PSpringCrop.setzeZeile("# number of entries: "+ HG_ZCOM.GetNrOfCounts());
-		for(int i = 0; i < HG_ZCOM.GetNrBins(); i++)
-			if(Math.abs(ZCOM_stat.ReturnM1()-HG_ZCOM.GetRangeInBin(i)) <= 1.55)
+		histo_P_over_PSpringCrop.setzeZeile("# number of entries: "+ HG_RCom2Com.GetNrOfCounts());
+		for(int i = 0; i < HG_RCom2Com.GetNrBins(); i++)
+			if(Math.abs(RCom2Com_stat.ReturnM1()-HG_RCom2Com.GetRangeInBin(i)) <= 1.55)
 		{
-			double valueAtR = Math.exp(-0.5*spc*(HG_ZCOM.GetRangeInBin(i)-eql)*(HG_ZCOM.GetRangeInBin(i)-eql));
-			double value_P_over_PS = ( (HG_ZCOM.GetNrInBinNormiert(i)/(4*Math.PI*HG_ZCOM.GetRangeInBin(i)*HG_ZCOM.GetRangeInBin(i)*HG_ZCOM.GetIntervallThickness()))/(valueAtR/((4*Math.PI*normalisation))) );
-			double value_only_P = (HG_ZCOM.GetNrInBinNormiert(i)/(4*Math.PI*HG_ZCOM.GetRangeInBin(i)*HG_ZCOM.GetRangeInBin(i)*HG_ZCOM.GetIntervallThickness()));
+			double valueAtR = Math.exp(-0.5*spc*(HG_RCom2Com.GetRangeInBin(i)-eql)*(HG_RCom2Com.GetRangeInBin(i)-eql));
+			double value_P_over_PS = ( (HG_RCom2Com.GetNrInBinNormiert(i)/(4*Math.PI*HG_RCom2Com.GetRangeInBin(i)*HG_RCom2Com.GetRangeInBin(i)*HG_RCom2Com.GetIntervallThickness()))/(valueAtR/((4*Math.PI*normalisation))) );
+			double value_only_P = (HG_RCom2Com.GetNrInBinNormiert(i)/(4*Math.PI*HG_RCom2Com.GetRangeInBin(i)*HG_RCom2Com.GetRangeInBin(i)*HG_RCom2Com.GetIntervallThickness()));
 					
 			double value_Ln_P_over_PS =0.0;
-			HG_ZCOM.GetBinOfValue(6.0);
+			HG_RCom2Com.GetBinOfValue(6.0);
 			if(value_P_over_PS != 0.0)
 				value_Ln_P_over_PS = -Math.log(value_P_over_PS);
 			else value_Ln_P_over_PS =1000.0;
 			
 			
-			histo_P_over_PSpringCrop.setzeZeile(HG_ZCOM.GetRangeInBin(i)+" "+ value_P_over_PS  + " " + value_Ln_P_over_PS + " "+value_only_P+ " "+ (HG_ZCOM.GetNrInBin(i)) );
+			histo_P_over_PSpringCrop.setzeZeile(HG_RCom2Com.GetRangeInBin(i)+" "+ value_P_over_PS  + " " + value_Ln_P_over_PS + " "+value_only_P+ " "+ (HG_RCom2Com.GetNrInBin(i)) );
 			
 		}
 		
@@ -518,8 +484,8 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 		BFMFileSaver histo_MeanDep= new BFMFileSaver();
 		histo_MeanDep.DateiAnlegen(dirDst+"/"+FileName+"_Histo_MeanDepletion.dat", false);
 		histo_MeanDep.setzeZeile("# fraction of p(r) over pS(r)=pS0*exp(-k/2*(r-l0)^2)");
-		histo_MeanDep.setzeZeile("# intervall from ["+HG_ZCOM.GetRangeInBinLowerLimit(0)+";"+HG_ZCOM.GetRangeInBinLowerLimit(HG_ZCOM.GetNrBins())+"]");
-		histo_MeanDep.setzeZeile("# intervall thickness: dI="+HG_ZCOM.GetIntervallThickness());
+		histo_MeanDep.setzeZeile("# intervall from ["+HG_RCom2Com.GetRangeInBinLowerLimit(0)+";"+HG_RCom2Com.GetRangeInBinLowerLimit(HG_RCom2Com.GetNrBins())+"]");
+		histo_MeanDep.setzeZeile("# intervall thickness: dI="+HG_RCom2Com.GetIntervallThickness());
 		histo_MeanDep.setzeZeile("# normalization pS0: "+(1.0/(4*Math.PI*normalisation)));
 		histo_MeanDep.setzeZeile("# spring constant k = " + spc);
 		histo_MeanDep.setzeZeile("# equilibrium length = " + eql);
@@ -528,10 +494,10 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 		histo_MeanDep.setzeZeile("# r  -ln(pSim(r)/p0) - exp(-k*(r-l0)^2/2)");
 		
 		
-		for(int i = 0; i < HG_ZCOM.GetNrBins(); i++)
+		for(int i = 0; i < HG_RCom2Com.GetNrBins(); i++)
 		{
-			double valueAtR = (0.5*spc*(HG_ZCOM.GetRangeInBin(i)-eql)*(HG_ZCOM.GetRangeInBin(i)-eql));
-			double value_PSim = (HG_ZCOM.GetNrInBinNormiert(i)/(4*Math.PI*HG_ZCOM.GetRangeInBin(i)*HG_ZCOM.GetRangeInBin(i)*HG_ZCOM.GetIntervallThickness()));
+			double valueAtR = (0.5*spc*(HG_RCom2Com.GetRangeInBin(i)-eql)*(HG_RCom2Com.GetRangeInBin(i)-eql));
+			double value_PSim = (HG_RCom2Com.GetNrInBinNormiert(i)/(4*Math.PI*HG_RCom2Com.GetRangeInBin(i)*HG_RCom2Com.GetRangeInBin(i)*HG_RCom2Com.GetIntervallThickness()));
 			
 			double value_Ln_PSim =0.0;
 			
@@ -541,7 +507,7 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 			else value_Ln_PSim =1000.0;
 			
 			
-			histo_MeanDep.setzeZeile(HG_ZCOM.GetRangeInBin(i)+" "+ (value_Ln_PSim-valueAtR)  );
+			histo_MeanDep.setzeZeile(HG_RCom2Com.GetRangeInBin(i)+" "+ (value_Ln_PSim-valueAtR)  );
 			
 		}
 		
@@ -560,7 +526,7 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 	    xmgrace.setzeZeile("FOCUS G0");
 	    xmgrace.setzeZeile("# AUTOSCALE ONREAD None");
 	    xmgrace.setzeZeile("# AUTOSCALE ONREAD YAxes");
-	    xmgrace.setzeZeile("READ BLOCK \""+dstDir+""+FileName+"_Histo_ZCOM.dat\"");
+	    xmgrace.setzeZeile("READ BLOCK \""+dstDir+""+FileName+"_Histo_RCom2Com.dat\"");
 	    xmgrace.setzeZeile("BLOCK xy \"1:2\"");
 	    xmgrace.setzeZeile("READ BLOCK \""+dstDir+""+FileName+"_Histo_RSpringPotProb.dat\"");
 	    xmgrace.setzeZeile("BLOCK xy \"1:2\"");
@@ -637,7 +603,7 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 	    xmgrace.setzeZeile(" line on");
 	    xmgrace.setzeZeile(" line loctype world");
 	    xmgrace.setzeZeile(" line g0");
-	    xmgrace.setzeZeile(" line "+ZCOM_stat.ReturnM1()+", -100, "+ZCOM_stat.ReturnM1()+", 100");
+	    xmgrace.setzeZeile(" line "+RCom2Com_stat.ReturnM1()+", -100, "+RCom2Com_stat.ReturnM1()+", 100");
 	    xmgrace.setzeZeile(" line linewidth 1.5");
 	    xmgrace.setzeZeile(" line linestyle 1");
 	    xmgrace.setzeZeile(" line color 1");
@@ -670,7 +636,7 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 	    xmgrace2.setzeZeile("FOCUS G0");
 	    xmgrace2.setzeZeile("# AUTOSCALE ONREAD None");
 	    xmgrace2.setzeZeile("# AUTOSCALE ONREAD YAxes");
-	    xmgrace2.setzeZeile("READ BLOCK \""+dstDir+""+FileName+"_Histo_ZCOM.dat\"");
+	    xmgrace2.setzeZeile("READ BLOCK \""+dstDir+""+FileName+"_Histo_RCom2Com.dat\"");
 	    xmgrace2.setzeZeile("BLOCK xy \"1:2\"");
 	    xmgrace2.setzeZeile("READ BLOCK \""+dstDir+""+FileName+"_Histo_RSpringPotProb.dat\"");
 	    xmgrace2.setzeZeile("BLOCK xy \"1:2\"");
@@ -744,7 +710,7 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 	    xmgrace2.setzeZeile(" line on");
 	    xmgrace2.setzeZeile(" line loctype world");
 	    xmgrace2.setzeZeile(" line g0");
-	    xmgrace2.setzeZeile(" line "+ZCOM_stat.ReturnM1()+", -100, "+ZCOM_stat.ReturnM1()+", 100");
+	    xmgrace2.setzeZeile(" line "+RCom2Com_stat.ReturnM1()+", -100, "+RCom2Com_stat.ReturnM1()+", 100");
 	    xmgrace2.setzeZeile(" line linewidth 1.5");
 	    xmgrace2.setzeZeile(" line linestyle 1");
 	    xmgrace2.setzeZeile(" line color 1");
@@ -798,7 +764,8 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 		  
 		importData.GetFrameOfSimulation(currentFrame);
 		  
-		  
+		SpringConstant[histonr]=importData.virtual_spring_constant;
+		EquLength[histonr]=importData.virtual_spring_length;
 			
 		  importData.CloseSimulationFile();
 		  
@@ -852,13 +819,13 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		if(args.length != 4)
+		if(args.length != 3)
 		{
-			System.out.println("Berechnung Rc2c Cubes");
-			System.out.println("USAGE: dirSrc/ FileLinearChains[.xo]  dirDst/ springconstant");
+			System.out.println("Berechnung FreeEnergyProfile along Core-to-Core-distance RK2K");
+			System.out.println("USAGE: dirSrc/ FileLinearChains[.xo]  dirDst/ ");
 		}
-		//else new Auswertung_Cubes_ZCOM_WHAM(args[0], args[1], args[2], Double.parseDouble(args[3]), Double.parseDouble(args[4]));//,args[1],args[2]);
-		else new Auswertung_Dendrimer_ZCOM_WHAM(args[0], args[1], args[2], Double.parseDouble(args[3]));//,args[1],args[2]);
+		//else new Auswertung_Cubes_RCom2Com_WHAM(args[0], args[1], args[2], Double.parseDouble(args[3]), Double.parseDouble(args[4]));//,args[1],args[2]);
+		else new Auswertung_Dendrimer_RK2K_Harmonic_WHAM(args[0], args[1], args[2]);//,args[1],args[2]);
 		
 		
 	}
@@ -921,29 +888,66 @@ public class Auswertung_Dendrimer_ZCOM_WHAM {
 				//System.arraycopy(importData.GetFrameOfSimulation( frame),0,dumpsystem,0, dumpsystem.length);
 				importData.GetFrameOfSimulation( frame);;
 				
+				double RCom1_x = 0.0;
+				double RCom1_y = 0.0;
+				double RCom1_z = 0.0;
+				
+				double counterCOMone = 0.0;
+				
+				double RCom2_x = 0.0;
+				double RCom2_y = 0.0;
+				double RCom2_z = 0.0;
+				
+				double counterCOMtwo = 0.0;
 				
 				
-				double ZCom1_x = 0.0;
-				double ZCom1_y = 0.0;
-				double ZCom1_z = 0.0;
+				for(int j=1; j <= importData.NrOfMonomers; j++)
+				{
+					if(importData.Attributes[j]==1)	
+					//if((importData.Attributes[j]==1) || (importData.Attributes[j]==2))
+					{
+						RCom1_x += 1.0*(importData.PolymerKoordinaten[j][0]);
+						RCom1_y += 1.0*(importData.PolymerKoordinaten[j][1]);
+						RCom1_z += 1.0*(importData.PolymerKoordinaten[j][2]);
 					
-				 for (int i= 1; i <= importData.NrOfMonomers; i++)
-				  
-				  {
-					 ZCom1_x += 1.0*(importData.PolymerKoordinaten[i][0]);
-					 ZCom1_y += 1.0*(importData.PolymerKoordinaten[i][1]);
-					 ZCom1_z += 1.0*(importData.PolymerKoordinaten[i][2]);
-				  }
-				  
-				 ZCom1_x /= importData.NrOfMonomers;
-				 ZCom1_y /= importData.NrOfMonomers;
-				 ZCom1_z /= importData.NrOfMonomers;
+						counterCOMone++;
+					}
+					
+					if(importData.Attributes[j]==2)
+					//if((importData.Attributes[j]==3) || (importData.Attributes[j]==4))
+					{
+						RCom2_x += 1.0*(importData.PolymerKoordinaten[j][0]);
+						RCom2_y += 1.0*(importData.PolymerKoordinaten[j][1]);
+						RCom2_z += 1.0*(importData.PolymerKoordinaten[j][2]);
+					
+						counterCOMtwo++;
+					}
+				}
 				
-				 
 				
-				ZCOM_stat[histonr].AddValue(ZCom1_z);
+				
+				 RCom1_x /= counterCOMone;
+				 RCom1_y /= counterCOMone;
+				 RCom1_z /= counterCOMone;
+				
+				 RCom2_x /= counterCOMtwo;
+				 RCom2_y /= counterCOMtwo;
+				 RCom2_z /= counterCOMtwo;
 				 
-				HG_ZCOM_Plain[histonr].AddValue(ZCom1_z);
+				 double distanceCom2Com=Math.sqrt((RCom2_x-RCom1_x)*(RCom2_x-RCom1_x) + (RCom2_y-RCom1_y)*(RCom2_y-RCom1_y) + (RCom2_z-RCom1_z)*(RCom2_z-RCom1_z));
+					
+				 // for Martin and MIC
+				 /*double COMDistVec_X_relativ = (RCom2_x-RCom1_x) - importData.box_x * Math.round((RCom2_x-RCom1_x)/importData.box_x);
+				 double COMDistVec_Y_relativ = (RCom2_y-RCom1_y) - importData.box_y * Math.round((RCom2_y-RCom1_y)/importData.box_y);
+				 double COMDistVec_Z_relativ = (RCom2_z-RCom1_z) - importData.box_z * Math.round((RCom2_z-RCom1_z)/importData.box_z);
+				
+				 double distanceCom2Com=Math.sqrt((COMDistVec_X_relativ)*(COMDistVec_X_relativ) + (COMDistVec_Y_relativ)*(COMDistVec_Y_relativ) + (COMDistVec_Z_relativ)*(COMDistVec_Z_relativ));
+				*/
+				 
+							
+				RCom2Com_stat[histonr].AddValue(distanceCom2Com);
+				 
+				HG_RCom2Com_Plain[histonr].AddValue(distanceCom2Com);
 			
 				
 	}

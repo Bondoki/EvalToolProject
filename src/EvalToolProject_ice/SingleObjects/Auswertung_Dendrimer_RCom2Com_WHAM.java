@@ -1,5 +1,7 @@
 package EvalToolProject_ice.SingleObjects;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 import EvalToolProject_ice.tools.BFMFileSaver;
 import EvalToolProject_ice.tools.BFMImportData;
@@ -82,7 +84,7 @@ public class Auswertung_Dendrimer_RCom2Com_WHAM {
 		currentFrame = 1;//Integer.parseInt(current);
 		//System.out.println("cf="+currentFrame);
 		
-		int NrOfAllHistogramms = 64;
+		int NrOfAllHistogramms = 97;
 		
 		double lowerBoundary = 0.0-0.5;
 		double higherBoundary = 128-0.5;
@@ -102,7 +104,7 @@ public class Auswertung_Dendrimer_RCom2Com_WHAM {
 			HG_RCom2Com_Plain[i] = new Histogramm(lowerBoundary,higherBoundary,NrBins);
 			HG_RCom2Com_Statistik[i] = new HistogrammStatistik(lowerBoundary,higherBoundary,NrBins);
 			OffSetF[i]=0.0;
-			EquLength[i]=1.0+1.0*i;
+			EquLength[i]=0+0.5*i;
 			System.out.println("EquLength["+i+"]: " + EquLength[i]);
 		}
 		
@@ -117,14 +119,21 @@ public class Auswertung_Dendrimer_RCom2Com_WHAM {
 		*/
 		DecimalFormat dh = new DecimalFormat("000");
 		
+		DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.GERMAN);
+		otherSymbols.setDecimalSeparator('.');
+		//otherSymbols.setGroupingSeparator('.'); 
+		
+		DecimalFormat df = new DecimalFormat("0.00", otherSymbols);
+		
+		
 		
 		//LoadFile(FileNameWithEnd, 1);
 		for(int nrHisto = 0; nrHisto < NrOfAllHistogramms; nrHisto++)
 		{
 			//LoadFile(fname+"R_"+EquLength[nrHisto]+".bfm",1,nrHisto);
-			
+			LoadFile(fname+"_L"+df.format(EquLength[nrHisto])+".bfm",20,nrHisto);
 			//LoadFile(fname+"_L"+(int)EquLength[nrHisto]+"_reduced.bfm",100,nrHisto);
-			LoadFile(fname+"_L"+(int)EquLength[nrHisto]+"_reduced.bfm",100,nrHisto);
+			//LoadFile(fname+"_L"+(int)EquLength[nrHisto]+"_reduced.bfm",100,nrHisto);
 			//LoadFile(fname+"R_"+EquLength[nrHisto]+"_C_0.2_HardColloids.bfm",1,nrHisto);
 		}
 		/*

@@ -140,7 +140,7 @@ public class Auswertung_Dendrimer_TwoFree_DensityOverlap {
 		
 		// printout of the densities
 		Histo2DSaver_DensityDendrimerOneGnuplot = new BFMFileSaver();
-		
+		System.out.println(FileDirectoryDst+FileName+"_Histo2D_TwoDendrimers_DensityOne_Gnuplot.gnu");
 		Histo2DSaver_DensityDendrimerOneGnuplot.DateiAnlegen(FileDirectoryDst+FileName+"_Histo2D_TwoDendrimers_DensityOne_Gnuplot.gnu", false);
 		Histo2DSaver_DensityDendrimerOneGnuplot.setzeZeile("set term postscript enhanced color");
 		Histo2DSaver_DensityDendrimerOneGnuplot.setzeZeile("set output \'"+FileDirectoryDst+FileName+"_Histo2D_TwoDendrimers_DensityOne.ps"+"\'");
@@ -545,7 +545,8 @@ public class Auswertung_Dendrimer_TwoFree_DensityOverlap {
 				
 				for(int j=1; j <= importData.NrOfMonomers; j++)
 				{
-					if(importData.Attributes[j]==1)
+					//if(importData.Attributes[j]==1)
+					if(j <= 382)	
 					{
 					rcm_xA += importData.PolymerKoordinaten[j][0];
 					rcm_yA += importData.PolymerKoordinaten[j][1];
@@ -567,7 +568,8 @@ public class Auswertung_Dendrimer_TwoFree_DensityOverlap {
 				
 				for(int j=1; j <= importData.NrOfMonomers; j++)
 				{
-					if(importData.Attributes[j]==2)
+					//if(importData.Attributes[j]==2)
+					if(( j > 382) && (j <= 764))
 					{
 					rcm_xB += importData.PolymerKoordinaten[j][0];
 					rcm_yB += importData.PolymerKoordinaten[j][1];

@@ -1,5 +1,7 @@
 package EvalToolProject_ice.SingleObjects;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 import EvalToolProject_ice.tools.BFMFileSaver;
 import EvalToolProject_ice.tools.BFMImportData;
@@ -66,7 +68,7 @@ public class Auswertung_Dendrimer_RCom2Com_Harmonic_WHAM {
 		
 		dstDir = dirDst;
 		
-		System.out.println("-7%6="+ (-7%6));
+		
 		
 		/*
 		//Determine MaxFrame out of the first file
@@ -104,8 +106,8 @@ public class Auswertung_Dendrimer_RCom2Com_Harmonic_WHAM {
 			HG_RCom2Com_Plain[i] = new Histogramm(lowerBoundary,higherBoundary,NrBins);
 			HG_RCom2Com_Statistik[i] = new HistogrammStatistik(lowerBoundary,higherBoundary,NrBins);
 			OffSetF[i]=0.0;
-			EquLength[i]=1.0+1.0*i;
-			SpringConstant[i]=0.25;
+			EquLength[i]=2+2.0*i;//1.0+1.0*i;
+			SpringConstant[i]=0.75;//0.25;
 			//System.out.println("EquLength["+i+"]: " + EquLength[i]);
 		}
 		
@@ -122,6 +124,12 @@ public class Auswertung_Dendrimer_RCom2Com_Harmonic_WHAM {
 		*/
 		DecimalFormat dh = new DecimalFormat("000");
 		
+		DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.GERMAN);
+		otherSymbols.setDecimalSeparator('.');
+		//otherSymbols.setGroupingSeparator('.'); 
+		
+		DecimalFormat df = new DecimalFormat("0.0", otherSymbols);
+		
 		
 		//LoadFile(FileNameWithEnd, 1);
 		for(int nrHisto = 0; nrHisto < NrOfAllHistogramms; nrHisto++)
@@ -129,7 +137,13 @@ public class Auswertung_Dendrimer_RCom2Com_Harmonic_WHAM {
 			//LoadFile(fname+"R_"+EquLength[nrHisto]+".bfm",1,nrHisto);
 			
 			//LoadFile(fname+"_L"+(int)EquLength[nrHisto]+"_reduced.bfm",100,nrHisto);
-			LoadFile(fname+"_L"+(int)EquLength[nrHisto]+"_reduced.bfm",100,nrHisto);
+			//LoadFile(fname+"_L"+(int)EquLength[nrHisto]+"_reduced.bfm",500,nrHisto);
+			
+			//LoadFile(fname+"_r"+(int)EquLength[nrHisto]+"_reduced.bfm",200,nrHisto);
+			
+			//LoadFile(fname+"_L"+df.format(EquLength[nrHisto])+".bfm",20,nrHisto);
+			
+			LoadFile(fname+"_r"+(int)(EquLength[nrHisto])+"_d0.5_reduced.bfm",200,nrHisto);
 			//LoadFile(fname+"_r0_"+(int)EquLength[nrHisto]+"_out.bfm",50,nrHisto);
 			//LoadFile(fname+"R_"+EquLength[nrHisto]+"_C_0.2_HardColloids.bfm",1,nrHisto);
 		}
@@ -149,6 +163,7 @@ public class Auswertung_Dendrimer_RCom2Com_Harmonic_WHAM {
 		//used data out of file
 		for(int nrHisto = 0; nrHisto < NrOfAllHistogramms; nrHisto++)
 			{
+				//SpringConstant[nrHisto]=0.05;
 				System.out.println("EquLength["+nrHisto+"]: " + EquLength[nrHisto]);
 				System.out.println("SprgConst["+nrHisto+"]: " + SpringConstant[nrHisto]);
 			}
@@ -258,6 +273,16 @@ public class Auswertung_Dendrimer_RCom2Com_Harmonic_WHAM {
 			OffSetF[nrHisto] = -Math.log(integral);
 			System.out.println("OffSetF["+nrHisto+"]: " + OffSetF[nrHisto]);
 		}
+		
+		// reduce all OffSet to zero by forcing last window to be OffSetF[NrOfAllHistogramms]=0.0
+
+		for(int nrHisto = 0; nrHisto < NrOfAllHistogramms; nrHisto++)
+		{
+			OffSetF[nrHisto] -= OffSetF[NrOfAllHistogramms-1];
+			//System.out.println("OffSetF["+nrHisto+"]: " + OffSetF[nrHisto]);
+
+			
+		}
 
 		System.out.println("SumOffSetF^2: " + sumSquare);
 		selfconsitency++;
@@ -282,6 +307,21 @@ public class Auswertung_Dendrimer_RCom2Com_Harmonic_WHAM {
 	}
 	
 	histo_RPMF.DateiSchliessen();
+	
+	BFMFileSaver histo_Offset= new BFMFileSaver();
+	histo_Offset.DateiAnlegen(dirDst+"/"+FileName+"Histo_PMF_WHAM_Offset.dat", false);
+	histo_Offset.setzeZeile("# normalized to unity: 4*PI*int_0 to inf p(r)*r^2 dr = 1");
+	histo_Offset.setzeZeile("# calculation of the mean free energy F using WHAM");
+	histo_Offset.setzeZeile("# intervall from ["+HG_RCom2Com_StatistikTotal.GetRangeInBinLowerLimit(0)+";"+HG_RCom2Com_StatistikTotal.GetRangeInBinLowerLimit(HG_RCom2Com_StatistikTotal.GetNrBins())+"]");
+	histo_Offset.setzeZeile("# intervall thickness: dI="+HG_RCom2Com_StatistikTotal.GetIntervallThickness());
+	histo_Offset.setzeZeile("# window_i F_i k_i l_0,i");
+	
+	for(int nrHisto = 0; nrHisto < NrOfAllHistogramms; nrHisto++)
+	{
+		histo_Offset.setzeZeile(nrHisto + " " + OffSetF[nrHisto]+ " " + EquLength[nrHisto] + " " + SpringConstant[nrHisto]);
+	}
+	
+	histo_Offset.DateiSchliessen();
 	
 		
 		/*double testnorm =0.0;
@@ -870,7 +910,8 @@ public class Auswertung_Dendrimer_RCom2Com_Harmonic_WHAM {
 				
 				for(int j=1; j <= importData.NrOfMonomers; j++)
 				{
-					if(importData.Attributes[j]==1)
+					if(importData.Attributes[j]==1)	
+					//if((importData.Attributes[j]==1) || (importData.Attributes[j]==2))
 					{
 						RCom1_x += 1.0*(importData.PolymerKoordinaten[j][0]);
 						RCom1_y += 1.0*(importData.PolymerKoordinaten[j][1]);
@@ -880,6 +921,7 @@ public class Auswertung_Dendrimer_RCom2Com_Harmonic_WHAM {
 					}
 					
 					if(importData.Attributes[j]==2)
+					//if((importData.Attributes[j]==3) || (importData.Attributes[j]==4))
 					{
 						RCom2_x += 1.0*(importData.PolymerKoordinaten[j][0]);
 						RCom2_y += 1.0*(importData.PolymerKoordinaten[j][1]);
@@ -889,6 +931,8 @@ public class Auswertung_Dendrimer_RCom2Com_Harmonic_WHAM {
 					}
 				}
 				
+				
+				
 				 RCom1_x /= counterCOMone;
 				 RCom1_y /= counterCOMone;
 				 RCom1_z /= counterCOMone;
@@ -896,9 +940,21 @@ public class Auswertung_Dendrimer_RCom2Com_Harmonic_WHAM {
 				 RCom2_x /= counterCOMtwo;
 				 RCom2_y /= counterCOMtwo;
 				 RCom2_z /= counterCOMtwo;
-				  
-				double distanceCom2Com=Math.sqrt((RCom2_x-RCom1_x)*(RCom2_x-RCom1_x) + (RCom2_y-RCom1_y)*(RCom2_y-RCom1_y) + (RCom2_z-RCom1_z)*(RCom2_z-RCom1_z));
+				 
+				// double distanceCom2Com=Math.sqrt((RCom2_x-RCom1_x)*(RCom2_x-RCom1_x) + (RCom2_y-RCom1_y)*(RCom2_y-RCom1_y) + (RCom2_z-RCom1_z)*(RCom2_z-RCom1_z));
 				
+				 double distanceCom2Com=Math.sqrt((0-RCom1_z)*(0-RCom1_z));
+					
+				// for Martin and MIC
+				/*
+				 double COMDistVec_X_relativ = (RCom2_x-RCom1_x) - importData.box_x * Math.round((RCom2_x-RCom1_x)/importData.box_x);
+				 double COMDistVec_Y_relativ = (RCom2_y-RCom1_y) - importData.box_y * Math.round((RCom2_y-RCom1_y)/importData.box_y);
+				 double COMDistVec_Z_relativ = (RCom2_z-RCom1_z) - importData.box_z * Math.round((RCom2_z-RCom1_z)/importData.box_z);
+				
+				 double distanceCom2Com=Math.sqrt((COMDistVec_X_relativ)*(COMDistVec_X_relativ) + (COMDistVec_Y_relativ)*(COMDistVec_Y_relativ) + (COMDistVec_Z_relativ)*(COMDistVec_Z_relativ));
+				*/
+				 
+							
 				RCom2Com_stat[histonr].AddValue(distanceCom2Com);
 				 
 				HG_RCom2Com_Plain[histonr].AddValue(distanceCom2Com);
